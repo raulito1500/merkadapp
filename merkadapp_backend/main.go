@@ -1,7 +1,8 @@
 package main
 
-import "fmt"
+import "github.com/raulito1500/merkadapp/server"
 
 func main() {
-	fmt.Println("Aquí construiremos Merkadapp")
+	api := server.NewApi()
+	api.Run()
 }
