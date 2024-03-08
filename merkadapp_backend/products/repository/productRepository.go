@@ -1,18 +1,17 @@
 package repository
 
 import (
-	"github.com/raulito1500/merkadapp/database"
-	"github.com/raulito1500/merkadapp/models"
+	"github.com/raulito1500/merkadapp/products/models"
 )
 
 // TODO: Traduce información de la BD al modelo diseñado
 
 func GetAll() []*models.Product {
-	pm := database.NewProductMongo()
-	return pm.GetAll()
+	pm := NewProductMongo()
+	return pm.ListProducts()
 }
 
 func UpdateProduct(id string) error {
-	pm := database.NewProductMongo()
+	pm := NewProductMongo()
 	return pm.UpdateProduct(id)
 }

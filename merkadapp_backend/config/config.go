@@ -7,6 +7,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// Usar las config dentro de las aplicaciones
 type Config struct {
 	DatabaseUrl string
 	Port        string
