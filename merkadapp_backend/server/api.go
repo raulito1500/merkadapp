@@ -2,10 +2,15 @@ package server
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/raulito1500/merkadapp/database"
 	"github.com/raulito1500/merkadapp/products/handlers"
+	"github.com/raulito1500/merkadapp/products/repository"
+	"github.com/raulito1500/merkadapp/products/services"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Api struct {
+	db *mongo.Database
 }
 
 func NewApi() *Api {
@@ -14,18 +19,27 @@ func NewApi() *Api {
 
 func (api *Api) Run() {
 	router := gin.Default()
-	api.configRoutes(router)
+	db := database.NewMongoDatabase().GetDb()
+	api.initHandlers(db, router)
 	router.Run()
 }
+func (api *Api) initHandlers(db *mongo.Database, r *gin.Engine) {
 
-func (api *Api) configRoutes(r *gin.Engine) {
+	productRepository := repository.NewProductMongoRepository(db)
+	productService := services.NewProductService(productRepository)
+	productHandler := handlers.NewProductHandler(productService)
+
+	billRepository := repository.NewBillMongoRepository(db)
+	billService := services.NewBillService(billRepository)
+	billHandler := handlers.NewBillHandler(billService)
+
 	productRoutes := r.Group("/products")
 	{
-		productRoutes.GET("/", func(c *gin.Context) { handlers.ListProducts(c) })
-		productRoutes.PUT("/:id", func(c *gin.Context) { handlers.UpdateProduct(c) })
+		productRoutes.GET("/", productHandler.ListProducts)
+		productRoutes.PUT("/:id", productHandler.UpdateProduct)
 	}
 	billRoutes := r.Group("/bills")
 	{
-		billRoutes.POST("/", func(c *gin.Context) { handlers.InsertBill(c) })
+		billRoutes.POST("/", billHandler.InsertBill)
 	}
 }

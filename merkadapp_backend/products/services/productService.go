@@ -7,12 +7,18 @@ import (
 
 // TODO: Validar logica de negocios
 type ProductService struct {
+	productRepository repository.ProductRepository
 }
 
-func GetAll() []*models.Product {
-	return repository.GetAll()
+func NewProductService(r repository.ProductRepository) ProductService {
+	return ProductService{
+		productRepository: r,
+	}
+}
+func (p *ProductService) ListProducts() []*models.Product {
+	return p.productRepository.ListProducts()
 }
 
-func UpdateProduct(id string) error {
-	return repository.UpdateProduct(id)
+func (p *ProductService) UpdateProduct(id string) error {
+	return p.productRepository.UpdateProduct(id)
 }

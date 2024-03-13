@@ -3,9 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
-	"log"
 
-	"github.com/raulito1500/merkadapp/database"
 	"github.com/raulito1500/merkadapp/products/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -13,30 +11,21 @@ import (
 )
 
 // TODO: Conecta a la BD
-type ProductMongo struct {
+type ProductMongoRepository struct {
 	db   *mongo.Database
 	coll *mongo.Collection
 }
 
-const COLLECTION = "products"
+const PRODUCT_COLLECTION = "products"
 
-func NewProductMongo() *ProductMongo {
-	db := database.NewMongoDatabase().GetDb()
-	return &ProductMongo{
+func NewProductMongoRepository(db *mongo.Database) *ProductMongoRepository {
+	return &ProductMongoRepository{
 		db:   db,
-		coll: db.Collection(COLLECTION),
-	}
-}
-func (m *ProductMongo) Close() {
-	log.Println("Cerrando conexión: ", &m.db)
-	if err := m.db.Client().Disconnect(context.TODO()); err != nil {
-		panic(err)
+		coll: db.Collection(PRODUCT_COLLECTION),
 	}
 }
 
-func (m *ProductMongo) ListProducts() []*models.Product {
-	defer m.Close()
-
+func (m *ProductMongoRepository) ListProducts() []*models.Product {
 	cursor, err := m.coll.Find(context.TODO(), bson.D{{}})
 
 	if err == mongo.ErrNoDocuments {
@@ -54,9 +43,8 @@ func (m *ProductMongo) ListProducts() []*models.Product {
 	return results
 }
 
-func (m *ProductMongo) UpdateProduct(id string) error {
-	defer m.Close()
-
+// TODO: Hacer un verdadero update
+func (m *ProductMongoRepository) UpdateProduct(id string) error {
 	ObjId, _ := primitive.ObjectIDFromHex(id)
 	filter := bson.D{{Key: "_id", Value: ObjId}}
 	update := bson.D{{Key: "$set", Value: bson.D{{
