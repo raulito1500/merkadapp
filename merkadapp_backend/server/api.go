@@ -36,6 +36,7 @@ func (api *Api) initHandlers(db *mongo.Database, r *gin.Engine) {
 	productRoutes := r.Group("/products")
 	{
 		productRoutes.GET("/", productHandler.ListProducts)
+		productRoutes.POST("/", productHandler.InsertProduct)
 		productRoutes.PUT("/:id", productHandler.UpdateProduct)
 	}
 	billRoutes := r.Group("/bills")

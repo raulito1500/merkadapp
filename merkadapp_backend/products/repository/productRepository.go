@@ -6,5 +6,6 @@ import (
 
 type ProductRepository interface {
 	ListProducts() []*models.Product
+	InsertProduct(product *models.Product) (string, error)
 	UpdateProduct(id string) error
 }
