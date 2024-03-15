@@ -43,6 +43,15 @@ func (m *ProductMongoRepository) ListProducts() []*models.Product {
 	return results
 }
 
+func (m *ProductMongoRepository) InsertProduct(product *models.Product) (string, error){
+	result, err := m.coll.InsertOne(context.TODO(), product)
+	if err != nil {
+		panic(err)
+	}
+	mongoId := result.InsertedID
+	return mongoId.(primitive.ObjectID).Hex(), nil
+}
+
 // TODO: Hacer un verdadero update
 func (m *ProductMongoRepository) UpdateProduct(id string) error {
 	ObjId, _ := primitive.ObjectIDFromHex(id)

@@ -2,6 +2,8 @@ package models
 
 import "time"
 
+var UNITS = []string{"KG", "ML", "UN"}
+
 type Bill struct {
 	ID     string       `json:"id" bson:"_id,omitempty"`
 	Date   time.Time    `json:"date" bson:"date"`
@@ -9,8 +11,8 @@ type Bill struct {
 	Where  string       `json:"where" bson:"where"`
 	Total  float32      `json:"total" bson:"total"`
 	Items  []*BillItem  `json:"items" bson:"items"`
-	Bags   []*BillBags  `json:"bags" bson:"bags"`
-	Taxes  []*BillTaxes `json:"taxes" bson:"taxes"`
+	Bags   []*BillBags  `json:"bags" bson:"bags,omitempty"`
+	Taxes  []*BillTaxes `json:"taxes" bson:"taxes,omitempty"`
 }
 
 type BillItem struct {

@@ -25,7 +25,7 @@ func NewBillMongoRepository(db *mongo.Database) BillRepository {
 func (m *BillMongoRepository) InsertBill(bill *models.Bill) (string, error) {
 	result, err := m.coll.InsertOne(context.TODO(), bill)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 	mongoId := result.InsertedID
 	return mongoId.(primitive.ObjectID).Hex(), nil
