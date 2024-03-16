@@ -5,7 +5,6 @@ import (
 	"github.com/raulito1500/merkadapp/products/repository"
 )
 
-// TODO: Validar logica de negocios
 type ProductService struct {
 	productRepository repository.ProductRepository
 }
@@ -20,6 +19,7 @@ func (p *ProductService) ListProducts() []*models.Product {
 }
 
 func (p *ProductService) InsertProduct(product *models.Product) (string, error) {
+	product.GenMS()
 	return p.productRepository.InsertProduct(product)
 }
 
