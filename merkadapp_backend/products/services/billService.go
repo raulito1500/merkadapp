@@ -20,7 +20,7 @@ func (b *BillService) InsertBill(bill *models.Bill) (string, error) {
 
 	for _, i := range bill.Items {
 		i.ID = primitive.NewObjectID().Hex()
-		i.Total += i.Quantity * i.UnitValue * (1 - (i.Discount / 100))
+		i.Total += i.Quantity * i.UnitValue * (1 - i.Discount)
 		bill.Total += i.Total
 	}
 	for _, b := range bill.Bags {

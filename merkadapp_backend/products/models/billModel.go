@@ -5,7 +5,7 @@ import "time"
 var UNITS = []string{"KG", "ML", "UN"}
 
 type Bill struct {
-	ID     string       `json:"id" bson:"_id,omitempty"`
+	ID     string       `json:"id,omitempty" bson:"_id,omitempty"`
 	Date   time.Time    `json:"date" bson:"date"`
 	PaidBy string       `json:"paid_by" bson:"paid_by"`
 	Where  string       `json:"where" bson:"where"`
@@ -16,7 +16,7 @@ type Bill struct {
 }
 
 type BillItem struct {
-	ID               string    `json:"id" bson:"_id"`
+	ID               string    `json:"id,omitempty" bson:"_id,omitempty"`
 	ProductId        string    `json:"product_id" bson:"product_id"`
 	Description      string    `json:"description" bson:"description"`
 	Brand            string    `json:"brand" bson:"brand"`

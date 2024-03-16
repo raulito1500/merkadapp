@@ -1,2 +1,3 @@
 merkadapp_backend/.env
 .vscode/launch.json
+merkadapp_backend/coverage.out

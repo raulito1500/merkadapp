@@ -1,0 +1,56 @@
+package handlers
+
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/raulito1500/merkadapp/helpers"
+	"github.com/raulito1500/merkadapp/products/models"
+	"github.com/raulito1500/merkadapp/products/services"
+)
+
+type MarketListHandler struct {
+	marketListService services.MarketListService
+}
+
+func NewMarketListHandler(ms services.MarketListService) MarketListHandler {
+	return MarketListHandler{
+		marketListService: ms,
+	}
+}
+
+func (mh MarketListHandler) InsertMarketList(c *gin.Context) {
+	reqBody := new(models.MarketList)
+
+	if err := c.Bind(reqBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	for _, i := range reqBody.Items {
+		if err := helpers.ValidateMandatory(i.ProductId); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf(err.Error(), "Product id")})
+			return
+		}
+		if err := helpers.ValidateMandatory(i.ProductName); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf(err.Error(), "Product name")})
+			return
+		}
+		if err := helpers.ValidateFloatNonZeroPositive(i.Quantity); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf(err.Error(), "Product quantity")})
+			return
+		}
+	}
+
+	insertedID, err := mh.marketListService.InsertMarketList(reqBody)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"id": insertedID})
+}
+func (mh MarketListHandler) SuggestMarketList(c *gin.Context) {
+	marketList := mh.marketListService.SuggestMarketList()
+	c.JSON(http.StatusOK, marketList)
+}
