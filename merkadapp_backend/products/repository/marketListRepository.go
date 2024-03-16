@@ -7,4 +7,5 @@ import (
 type MarketListRepository interface {
 	InsertMarketList(marketList *models.MarketList) (string, error)
 	SuggestMarketList() models.MarketList
+	MarkCheck(idMarketList string, idProduct string) error
 }

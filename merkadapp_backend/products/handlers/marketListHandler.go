@@ -54,3 +54,14 @@ func (mh MarketListHandler) SuggestMarketList(c *gin.Context) {
 	marketList := mh.marketListService.SuggestMarketList()
 	c.JSON(http.StatusOK, marketList)
 }
+
+func (mh MarketListHandler) MarkCheck(c *gin.Context) {
+	idMarketList := c.Param("id")
+	idProduct := c.Param("idProduct")
+
+	err := mh.marketListService.MarkCheck(idMarketList, idProduct)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+	c.JSON(http.StatusOK, "")
+}

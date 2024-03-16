@@ -51,5 +51,6 @@ func (api *Api) initHandlers(db *mongo.Database, r *gin.Engine) {
 	{
 		marketListRoutes.POST("/", marketListHandler.InsertMarketList)
 		marketListRoutes.GET("/suggested", marketListHandler.SuggestMarketList)
+		marketListRoutes.PUT("/:id/check/:idProduct", marketListHandler.MarkCheck)
 	}
 }

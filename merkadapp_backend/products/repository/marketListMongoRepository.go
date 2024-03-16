@@ -160,3 +160,22 @@ func (m *MarketListMongoRepository) SuggestMarketList() models.MarketList {
 	result.Date = time.Now()
 	return result
 }
+
+func (m *MarketListMongoRepository) MarkCheck(idMarketList string, idProduct string) error {
+	ObjId, _ := primitive.ObjectIDFromHex(idMarketList)
+	filter := bson.D{
+		{"_id", ObjId},
+		{"items", bson.M{"$elemMatch": bson.M{"product_id": idProduct}}},
+	}
+
+	update := bson.D{
+		{"$set", bson.M{"items.$.checked": true}},
+	}
+
+	_, err := m.coll.UpdateOne(context.TODO(), filter, update)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
