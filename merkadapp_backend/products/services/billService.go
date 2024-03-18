@@ -6,7 +6,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// TODO: Validar logica de negocios
 type BillService struct {
 	billRepository repository.BillRepository
 }
