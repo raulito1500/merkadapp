@@ -1,4 +1,4 @@
-merkadapp_backend/.env
+src/.env
 .vscode/launch.json
-merkadapp_backend/coverage.out
+src/coverage.out
 .DS_Store
