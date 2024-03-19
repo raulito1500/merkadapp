@@ -2,6 +2,12 @@ package models
 
 var CATEGORIES = []string{"CANNED", "DELI", "PASTA", "CLEANERS", "FRUITS", "VEGETABLES", "SAUCES", "BEVERAGE", "DAIRY", "FROZEN", "PERSONAL_CARE", "SNACKS", "MEAT", "CONDIMENTS", "BAKERY", "SEAFOOD", "UNCATEGORIZED"}
 
+const (
+	ONE_DAY_MS   = 1000 * 60 * 60 * 24
+	ONE_WEEK_MS  = ONE_DAY_MS * 7
+	ONE_MONTH_MS = ONE_DAY_MS * 30
+)
+
 type Product struct {
 	ID       string `json:"id,omitempty" bson:"_id,omitempty"`
 	Category string `json:"category" bson:"category"`
@@ -13,22 +19,20 @@ type Product struct {
 }
 
 func (p *Product) GenMS() {
-	ms := 0
 	switch p.Repeat {
 	case "1W":
-		ms = 1000 * 60 * 60 * 24 * 7
+		p.RepeatMS = ONE_WEEK_MS
 	case "2W":
-		ms = 1000 * 60 * 60 * 24 * 7 * 2
+		p.RepeatMS = ONE_WEEK_MS * 2
 	case "3W":
-		ms = 1000 * 60 * 60 * 24 * 7 * 3
+		p.RepeatMS = ONE_WEEK_MS * 3
 	case "1M":
-		ms = 1000 * 60 * 60 * 24 * 30
+		p.RepeatMS = ONE_MONTH_MS
 	case "2M":
-		ms = 1000 * 60 * 60 * 24 * 30 * 2
+		p.RepeatMS = ONE_MONTH_MS * 2
 	case "3M":
-		ms = 1000 * 60 * 60 * 24 * 30 * 3
+		p.RepeatMS = ONE_MONTH_MS * 3
 	default:
-		ms = 0
+		p.RepeatMS = 0
 	}
-	p.RepeatMS = ms
 }
