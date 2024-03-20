@@ -49,8 +49,10 @@ func (api *Api) initHandlers(db *mongo.Database, r *gin.Engine) {
 	}
 	marketListRoutes := r.Group("/market-list")
 	{
+		marketListRoutes.GET("/", marketListHandler.ListMarketLists)
+		marketListRoutes.GET("/:id", marketListHandler.ListMarketList)
 		marketListRoutes.POST("/", marketListHandler.InsertMarketList)
 		marketListRoutes.GET("/suggested", marketListHandler.SuggestMarketList)
-		marketListRoutes.PUT("/:id/check/:idProduct", marketListHandler.MarkCheck)
+		marketListRoutes.PUT("/:id/check/:idProduct", marketListHandler.MarkItemCheck)
 	}
 }

@@ -16,6 +16,15 @@ func NewMarketListService(r repository.MarketListRepository) MarketListService {
 		marketListRepository: r,
 	}
 }
+
+func (b *MarketListService) ListMarketLists() []*models.MarketList {
+	return b.marketListRepository.ListMarketLists()
+}
+
+func (b *MarketListService) ListMarketList(id string) (models.MarketList, error) {
+	return b.marketListRepository.ListMarketList(id)
+}
+
 func (b *MarketListService) InsertMarketList(marketList *models.MarketList) (string, error) {
 	if hasDuplicates(marketList.Items) {
 		return "", errors.New("Product id duplicated")
@@ -27,8 +36,8 @@ func (b *MarketListService) SuggestMarketList() models.MarketList {
 	return b.marketListRepository.SuggestMarketList()
 }
 
-func (b *MarketListService) MarkCheck(idMarketList string, idProduct string) error {
-	return b.marketListRepository.MarkCheck(idMarketList, idProduct)
+func (b *MarketListService) MarkItemCheck(idMarketList string, idProduct string) error {
+	return b.marketListRepository.MarkItemCheck(idMarketList, idProduct)
 }
 
 func hasDuplicates(items []*models.ListItem) bool {

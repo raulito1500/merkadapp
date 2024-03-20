@@ -20,6 +20,21 @@ func NewMarketListHandler(ms services.MarketListService) MarketListHandler {
 	}
 }
 
+func (mh MarketListHandler) ListMarketLists(c *gin.Context) {
+	marketlists := mh.marketListService.ListMarketLists()
+	c.JSON(http.StatusOK, marketlists)
+}
+
+func (mh MarketListHandler) ListMarketList(c *gin.Context) {
+	id := c.Param("id")
+	marketlist, err := mh.marketListService.ListMarketList(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, marketlist)
+}
+
 func (mh MarketListHandler) InsertMarketList(c *gin.Context) {
 	reqBody := new(models.MarketList)
 
@@ -55,11 +70,11 @@ func (mh MarketListHandler) SuggestMarketList(c *gin.Context) {
 	c.JSON(http.StatusOK, marketList)
 }
 
-func (mh MarketListHandler) MarkCheck(c *gin.Context) {
+func (mh MarketListHandler) MarkItemCheck(c *gin.Context) {
 	idMarketList := c.Param("id")
 	idProduct := c.Param("idProduct")
 
-	err := mh.marketListService.MarkCheck(idMarketList, idProduct)
+	err := mh.marketListService.MarkItemCheck(idMarketList, idProduct)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}

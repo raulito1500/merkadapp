@@ -2,12 +2,14 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/raulito1500/merkadapp/products/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type MarketListMongoRepository struct {
@@ -24,6 +26,43 @@ func NewMarketListMongoRepository(db *mongo.Database) MarketListRepository {
 	}
 }
 
+func (m *MarketListMongoRepository) ListMarketLists() []*models.MarketList {
+	opts := options.Find().SetProjection(bson.D{{"items", 0}})
+	opts = opts.SetSort(bson.D{{"date", -1}})
+	opts = opts.SetLimit(5)
+
+	cursor, err := m.coll.Find(context.TODO(), bson.D{}, opts)
+	if err != nil {
+		return []*models.MarketList{}
+	}
+	defer cursor.Close(context.TODO())
+
+	results := []*models.MarketList{}
+
+	if err := cursor.All(context.TODO(), &results); err != nil {
+		return []*models.MarketList{}
+	}
+	return results
+}
+
+func (m *MarketListMongoRepository) ListMarketList(id string) (models.MarketList, error) {
+	objId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return models.MarketList{}, errors.New("Not found")
+	}
+
+	var result models.MarketList
+	filter := bson.D{{"_id", objId}}
+	err = m.coll.FindOne(context.TODO(), filter).Decode(&result)
+
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return models.MarketList{}, errors.New("Not found")
+		}
+		return models.MarketList{}, err
+	}
+	return result, nil
+}
 func (m *MarketListMongoRepository) InsertMarketList(marketList *models.MarketList) (string, error) {
 	result, err := m.coll.InsertOne(context.TODO(), marketList)
 	if err != nil {
@@ -161,7 +200,7 @@ func (m *MarketListMongoRepository) SuggestMarketList() models.MarketList {
 	return result
 }
 
-func (m *MarketListMongoRepository) MarkCheck(idMarketList string, idProduct string) error {
+func (m *MarketListMongoRepository) MarkItemCheck(idMarketList string, idProduct string) error {
 	ObjId, _ := primitive.ObjectIDFromHex(idMarketList)
 	filter := bson.D{
 		{"_id", ObjId},

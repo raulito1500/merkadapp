@@ -5,7 +5,7 @@ import "time"
 type MarketList struct {
 	ID    string      `json:"id,omitempty" bson:"_id,omitempty"`
 	Date  time.Time   `json:"date" bson:"date"`
-	Items []*ListItem `json:"items" bson:"items"`
+	Items []*ListItem `json:"items,omitempty" bson:"items"`
 }
 
 type ListItem struct {
