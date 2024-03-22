@@ -3,8 +3,8 @@ package services
 import (
 	"errors"
 
-	"github.com/raulito1500/merkadapp/products/models"
-	"github.com/raulito1500/merkadapp/products/repository"
+	"github.com/raulito1500/merkadapp/src/models"
+	"github.com/raulito1500/merkadapp/src/repository"
 )
 
 type MarketListService struct {

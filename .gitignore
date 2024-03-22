@@ -1,4 +1,2 @@
-src/.env
 .vscode/launch.json
-src/coverage.out
 .DS_Store

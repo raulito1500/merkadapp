@@ -3,9 +3,8 @@ package database
 import (
 	"context"
 	"log"
-	"os"
 
-	"github.com/joho/godotenv"
+	"github.com/raulito1500/merkadapp/config"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -14,21 +13,15 @@ type MongoDatabase struct {
 	Db *mongo.Database
 }
 
-func NewMongoDatabase() *MongoDatabase {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatal("Error loading enviroments")
-	}
-	DATABASE_URL := os.Getenv("DATABASE_URL")
-	DATABASE_NAME := os.Getenv("DATABASE_NAME")
+func NewMongoDatabase(config *config.Config) *MongoDatabase {
 
-	opt := options.Client().ApplyURI(DATABASE_URL)
+	opt := options.Client().ApplyURI(config.DatabaseUrl)
 	client, err := mongo.Connect(context.TODO(), opt)
 	if err != nil {
 		panic(err)
 	}
 	return &MongoDatabase{
-		Db: client.Database(DATABASE_NAME),
+		Db: client.Database(config.DatabaseName),
 	}
 }
 
