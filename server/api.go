@@ -4,15 +4,16 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/raulito1500/merkadapp/config"
 	"github.com/raulito1500/merkadapp/database"
-	productHandlers "github.com/raulito1500/merkadapp/src/product/handlers"
-	productRepository "github.com/raulito1500/merkadapp/src/product/repository"
-	productServices "github.com/raulito1500/merkadapp/src/product/services"
-	marketListHandlers "github.com/raulito1500/merkadapp/src/market_list/handlers"
-	marketListRepository "github.com/raulito1500/merkadapp/src/market_list/repository"
-	marketListServices "github.com/raulito1500/merkadapp/src/market_list/services"
 	BillHandlers "github.com/raulito1500/merkadapp/src/bill/handlers"
 	BillRepository "github.com/raulito1500/merkadapp/src/bill/repository"
 	BillServices "github.com/raulito1500/merkadapp/src/bill/services"
+	MarketListHandlers "github.com/raulito1500/merkadapp/src/market_list/handlers"
+	MarketListRepository "github.com/raulito1500/merkadapp/src/market_list/repository"
+	MarketListServices "github.com/raulito1500/merkadapp/src/market_list/services"
+	NotificationHandler "github.com/raulito1500/merkadapp/src/notification/handlers"
+	ProductHandlers "github.com/raulito1500/merkadapp/src/product/handlers"
+	ProductRepository "github.com/raulito1500/merkadapp/src/product/repository"
+	ProductServices "github.com/raulito1500/merkadapp/src/product/services"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -35,9 +36,12 @@ func (api *Api) Run() {
 
 func (api *Api) initHandlers(db *mongo.Database, r *gin.Engine) {
 
-	productRepository := productRepository.NewProductMongoRepository(db)
-	productService := productServices.NewProductService(productRepository)
-	productHandler := productHandlers.NewProductHandler(productService)
+	notificationHandler := NotificationHandler.NewNotificationHandler()
+	r.GET("/ws", notificationHandler.WebSocketHandler)
+
+	productRepository := ProductRepository.NewProductMongoRepository(db)
+	productService := ProductServices.NewProductService(productRepository)
+	productHandler := ProductHandlers.NewProductHandler(productService)
 	productRoutes := r.Group("/products")
 	{
 		productRoutes.GET("/", productHandler.ListProducts)
@@ -53,9 +57,9 @@ func (api *Api) initHandlers(db *mongo.Database, r *gin.Engine) {
 		billRoutes.POST("/", billHandler.InsertBill)
 	}
 
-	marketListRepository := marketListRepository.NewMarketListMongoRepository(db)
-	marketListService := marketListServices.NewMarketListService(marketListRepository)
-	marketListHandler := marketListHandlers.NewMarketListHandler(marketListService)
+	marketListRepository := MarketListRepository.NewMarketListMongoRepository(db)
+	marketListService := MarketListServices.NewMarketListService(marketListRepository)
+	marketListHandler := MarketListHandlers.NewMarketListHandler(marketListService)
 	marketListRoutes := r.Group("/market-list")
 	{
 		marketListRoutes.GET("/", marketListHandler.ListMarketLists)
