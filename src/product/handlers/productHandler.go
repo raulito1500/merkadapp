@@ -20,7 +20,6 @@ func NewProductHandler(ps services.ProductService) ProductHandler {
 	}
 }
 
-// TODO: Procesar la información de ingreso antes de enviarla a las demás capas
 func (ph ProductHandler) ListProducts(c *gin.Context) {
 	products := ph.productService.ListProducts()
 	c.JSON(http.StatusOK, products)

@@ -10,7 +10,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// TODO: Conecta a la BD
 type ProductMongoRepository struct {
 	db   *mongo.Database
 	coll *mongo.Collection
