@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/raulito1500/merkadapp/src/models"
+	"github.com/raulito1500/merkadapp/src/market_list/models"
 )
 
 type MarketListRepository interface {

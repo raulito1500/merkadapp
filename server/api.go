@@ -4,9 +4,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/raulito1500/merkadapp/config"
 	"github.com/raulito1500/merkadapp/database"
-	"github.com/raulito1500/merkadapp/src/handlers"
-	"github.com/raulito1500/merkadapp/src/repository"
-	"github.com/raulito1500/merkadapp/src/services"
+	productHandlers "github.com/raulito1500/merkadapp/src/product/handlers"
+	productRepository "github.com/raulito1500/merkadapp/src/product/repository"
+	productServices "github.com/raulito1500/merkadapp/src/product/services"
+	marketListHandlers "github.com/raulito1500/merkadapp/src/market_list/handlers"
+	marketListRepository "github.com/raulito1500/merkadapp/src/market_list/repository"
+	marketListServices "github.com/raulito1500/merkadapp/src/market_list/services"
+	BillHandlers "github.com/raulito1500/merkadapp/src/bill/handlers"
+	BillRepository "github.com/raulito1500/merkadapp/src/bill/repository"
+	BillServices "github.com/raulito1500/merkadapp/src/bill/services"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -29,9 +35,9 @@ func (api *Api) Run() {
 
 func (api *Api) initHandlers(db *mongo.Database, r *gin.Engine) {
 
-	productRepository := repository.NewProductMongoRepository(db)
-	productService := services.NewProductService(productRepository)
-	productHandler := handlers.NewProductHandler(productService)
+	productRepository := productRepository.NewProductMongoRepository(db)
+	productService := productServices.NewProductService(productRepository)
+	productHandler := productHandlers.NewProductHandler(productService)
 	productRoutes := r.Group("/products")
 	{
 		productRoutes.GET("/", productHandler.ListProducts)
@@ -39,17 +45,17 @@ func (api *Api) initHandlers(db *mongo.Database, r *gin.Engine) {
 		productRoutes.PUT("/:id", productHandler.UpdateProduct)
 	}
 
-	billRepository := repository.NewBillMongoRepository(db)
-	billService := services.NewBillService(billRepository)
-	billHandler := handlers.NewBillHandler(billService)
+	billRepository := BillRepository.NewBillMongoRepository(db)
+	billService := BillServices.NewBillService(billRepository)
+	billHandler := BillHandlers.NewBillHandler(billService)
 	billRoutes := r.Group("/bills")
 	{
 		billRoutes.POST("/", billHandler.InsertBill)
 	}
 
-	marketListRepository := repository.NewMarketListMongoRepository(db)
-	marketListService := services.NewMarketListService(marketListRepository)
-	marketListHandler := handlers.NewMarketListHandler(marketListService)
+	marketListRepository := marketListRepository.NewMarketListMongoRepository(db)
+	marketListService := marketListServices.NewMarketListService(marketListRepository)
+	marketListHandler := marketListHandlers.NewMarketListHandler(marketListService)
 	marketListRoutes := r.Group("/market-list")
 	{
 		marketListRoutes.GET("/", marketListHandler.ListMarketLists)

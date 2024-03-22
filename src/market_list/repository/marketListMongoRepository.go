@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/raulito1500/merkadapp/src/models"
+	"github.com/raulito1500/merkadapp/src/market_list/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -18,6 +18,7 @@ type MarketListMongoRepository struct {
 }
 
 const MARKET_LIST_COLLECTION = "market_list"
+const PRODUCT_COLLECTION = "products"
 
 func NewMarketListMongoRepository(db *mongo.Database) MarketListRepository {
 	return &MarketListMongoRepository{

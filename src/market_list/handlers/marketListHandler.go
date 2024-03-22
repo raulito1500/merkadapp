@@ -6,8 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/raulito1500/merkadapp/helpers"
-	"github.com/raulito1500/merkadapp/src/models"
-	"github.com/raulito1500/merkadapp/src/services"
+	"github.com/raulito1500/merkadapp/src/market_list/models"
+	"github.com/raulito1500/merkadapp/src/market_list/services"
 )
 
 type MarketListHandler struct {

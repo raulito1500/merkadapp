@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/raulito1500/merkadapp/src/models"
+	"github.com/raulito1500/merkadapp/src/bill/models"
 )
 
 type BillRepository interface {

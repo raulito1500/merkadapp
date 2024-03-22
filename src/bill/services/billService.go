@@ -1,8 +1,8 @@
 package services
 
 import (
-	"github.com/raulito1500/merkadapp/src/models"
-	"github.com/raulito1500/merkadapp/src/repository"
+	"github.com/raulito1500/merkadapp/src/bill/models"
+	"github.com/raulito1500/merkadapp/src/bill/repository"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 

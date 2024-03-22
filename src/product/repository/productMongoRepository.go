@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/raulito1500/merkadapp/src/models"
+	"github.com/raulito1500/merkadapp/src/product/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"

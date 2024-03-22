@@ -6,8 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/raulito1500/merkadapp/helpers"
-	"github.com/raulito1500/merkadapp/src/models"
-	"github.com/raulito1500/merkadapp/src/services"
+	"github.com/raulito1500/merkadapp/src/bill/models"
+	"github.com/raulito1500/merkadapp/src/bill/services"
 )
 
 type BillHandler struct {

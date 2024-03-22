@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/raulito1500/merkadapp/src/models"
+	"github.com/raulito1500/merkadapp/src/bill/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
