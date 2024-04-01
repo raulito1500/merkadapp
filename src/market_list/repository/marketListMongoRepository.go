@@ -76,10 +76,6 @@ func (m *MarketListMongoRepository) InsertMarketList(marketList *models.MarketLi
 func (m *MarketListMongoRepository) SuggestMarketList() models.MarketList {
 
 	var collP = m.db.Collection(PRODUCT_COLLECTION)
-	// filter := bson.D{{"repeat", "1W"}, {"is_base", true}}
-	// opts := options.Find().SetProjection(bson.D{{"product_name", "$name"}, {"quantity", 1}, {"_id", 0}, {"product_id", "$_id"}})
-
-	// cursor, err := collP.Find(context.TODO(), filter, opts)
 	pipeline := bson.A{
 		bson.D{
 			{"$lookup",
@@ -202,9 +198,9 @@ func (m *MarketListMongoRepository) SuggestMarketList() models.MarketList {
 }
 
 func (m *MarketListMongoRepository) MarkItemCheck(idMarketList string, idProduct string) error {
-	ObjId, _ := primitive.ObjectIDFromHex(idMarketList)
+	objId, _ := primitive.ObjectIDFromHex(idMarketList)
 	filter := bson.D{
-		{"_id", ObjId},
+		{"_id", objId},
 		{"items", bson.M{"$elemMatch": bson.M{"product_id": idProduct}}},
 	}
 

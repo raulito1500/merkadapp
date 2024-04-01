@@ -63,3 +63,14 @@ func (bh BillHandler) InsertBill(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"id": insertedID})
 }
+
+func (bh BillHandler) MarkSpentItem(c *gin.Context) {
+	idBill := c.Param("id")
+	idItem := c.Param("idItem")
+
+	err := bh.billService.MarkSpentItem(idBill, idItem)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+	c.JSON(http.StatusOK, "")
+}

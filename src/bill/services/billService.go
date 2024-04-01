@@ -15,6 +15,7 @@ func NewBillService(r repository.BillRepository) BillService {
 		billRepository: r,
 	}
 }
+
 func (b *BillService) InsertBill(bill *models.Bill) (string, error) {
 
 	for _, i := range bill.Items {
@@ -30,4 +31,8 @@ func (b *BillService) InsertBill(bill *models.Bill) (string, error) {
 		bill.Total += t.Total
 	}
 	return b.billRepository.InsertBill(bill)
+}
+
+func (b *BillService) MarkSpentItem(idBill string, idItem string) error {
+	return b.billRepository.MarkSpentItem(idBill, idItem)
 }

@@ -6,5 +6,6 @@ import (
 
 type BillRepository interface {
 	InsertBill(bill *models.Bill) (string, error)
+	MarkSpentItem(idBill string, idItem string) error
 }
 
