@@ -2,9 +2,11 @@ package services
 
 import (
 	"errors"
+	"time"
 
 	"github.com/raulito1500/merkadapp/src/market_list/models"
 	"github.com/raulito1500/merkadapp/src/market_list/repository"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type MarketListService struct {
@@ -29,20 +31,26 @@ func (b *MarketListService) InsertMarketList(marketList *models.MarketList) (str
 	if hasDuplicates(marketList.Items) {
 		return "", errors.New("Product id duplicated")
 	}
+	for _, ml := range marketList.Items {
+		ml.ID = primitive.NewObjectID().Hex()
+	}
 	return b.marketListRepository.InsertMarketList(marketList)
 }
 
 func (b *MarketListService) SuggestMarketList() models.MarketList {
-	return b.marketListRepository.SuggestMarketList()
+	suggested := b.marketListRepository.SuggestMarketList()
+	suggested.Date = nextMarketDay()
+	return suggested
 }
 
-func (b *MarketListService) MarkItemCheck(idMarketList string, idProduct string) error {
-	return b.marketListRepository.MarkItemCheck(idMarketList, idProduct)
+func (b *MarketListService) MarkItemCheck(idMarketList string, idItem string) error {
+	return b.marketListRepository.MarkItemCheck(idMarketList, idItem)
 }
 
+// TODO: Ubicar esto en una mejor ubicación
 func hasDuplicates(items []*models.ListItem) bool {
 	seen := make(map[string]int)
-
+	// TODO: No tener en cuenta si el product_id está en blanco
 	for _, i := range items {
 		seen[i.ProductId]++
 		if seen[i.ProductId] > 1 {
@@ -50,4 +58,11 @@ func hasDuplicates(items []*models.ListItem) bool {
 		}
 	}
 	return false
+}
+
+// TODO: Encontrar el siguiente sábado
+func nextMarketDay() time.Time {
+	today := time.Now()
+	diasHastaSabado := 6 - int(today.Weekday())
+	return today.AddDate(0, 0, diasHastaSabado)
 }

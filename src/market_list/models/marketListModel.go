@@ -2,10 +2,13 @@ package models
 
 import "time"
 
+// TODO: Crear un DAO/DTO para la lista sugerida y las listas sin items
 type MarketList struct {
-	ID    string      `json:"id,omitempty" bson:"_id,omitempty"`
-	Date  time.Time   `json:"date" bson:"date"`
-	Items []*ListItem `json:"items,omitempty" bson:"items"`
+	ID             string      `json:"id,omitempty" bson:"_id,omitempty"`
+	Date           time.Time   `json:"date" bson:"date"`
+	Items          []*ListItem `json:"items,omitempty" bson:"items"`
+	CompletedItems uint16      `json:"completedItems" bson:"completedItems,omitempty"`
+	TotalItems     uint16      `json:"totalItems,omitempty" bson:"totalItems,omitempty"`
 }
 
 type ListItem struct {

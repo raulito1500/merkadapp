@@ -28,7 +28,39 @@ func NewMarketListMongoRepository(db *mongo.Database) MarketListRepository {
 }
 
 func (m *MarketListMongoRepository) ListMarketLists() []*models.MarketList {
-	opts := options.Find().SetProjection(bson.D{{"items", 0}})
+	project := bson.D{
+		{"completedItems",
+			bson.D{
+				{"$size",
+					bson.D{
+						{"$filter",
+							bson.D{
+								{"input", "$items"},
+								{"as", "item"},
+								{"cond",
+									bson.D{
+										{"$eq",
+											bson.A{
+												"$$item.checked",
+												true,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{"totalItems",
+			bson.D{
+				{"$size", "$items"},
+			},
+		},
+		{"date", 1},
+	}
+	opts := options.Find().SetProjection(project)
 	opts = opts.SetSort(bson.D{{"date", -1}})
 	opts = opts.SetLimit(5)
 
@@ -193,15 +225,14 @@ func (m *MarketListMongoRepository) SuggestMarketList() models.MarketList {
 	if err = cursor.All(context.TODO(), &result.Items); err != nil {
 		panic(err)
 	}
-	result.Date = time.Now()
 	return result
 }
 
-func (m *MarketListMongoRepository) MarkItemCheck(idMarketList string, idProduct string) error {
+func (m *MarketListMongoRepository) MarkItemCheck(idMarketList string, idItem string) error {
 	objId, _ := primitive.ObjectIDFromHex(idMarketList)
 	filter := bson.D{
 		{"_id", objId},
-		{"items", bson.M{"$elemMatch": bson.M{"product_id": idProduct}}},
+		{"items", bson.M{"$elemMatch": bson.M{"_id": idItem}}},
 	}
 
 	update := bson.D{

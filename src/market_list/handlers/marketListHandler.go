@@ -72,9 +72,9 @@ func (mh MarketListHandler) SuggestMarketList(c *gin.Context) {
 
 func (mh MarketListHandler) MarkItemCheck(c *gin.Context) {
 	idMarketList := c.Param("id")
-	idProduct := c.Param("idProduct")
+	idItem := c.Param("idItem")
 
-	err := mh.marketListService.MarkItemCheck(idMarketList, idProduct)
+	err := mh.marketListService.MarkItemCheck(idMarketList, idItem)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
