@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/raulito1500/merkadapp/src/market_list/entities"
 	"github.com/raulito1500/merkadapp/src/market_list/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -27,7 +28,7 @@ func NewMarketListMongoRepository(db *mongo.Database) MarketListRepository {
 	}
 }
 
-func (m *MarketListMongoRepository) ListMarketLists() []*models.MarketList {
+func (m *MarketListMongoRepository) ListMarketLists() []*models.MarketListHeader {
 	project := bson.D{
 		{"completedItems",
 			bson.D{
@@ -66,37 +67,37 @@ func (m *MarketListMongoRepository) ListMarketLists() []*models.MarketList {
 
 	cursor, err := m.coll.Find(context.TODO(), bson.D{}, opts)
 	if err != nil {
-		return []*models.MarketList{}
+		return []*models.MarketListHeader{}
 	}
 	defer cursor.Close(context.TODO())
 
-	results := []*models.MarketList{}
+	results := []*models.MarketListHeader{}
 
 	if err := cursor.All(context.TODO(), &results); err != nil {
-		return []*models.MarketList{}
+		return []*models.MarketListHeader{}
 	}
 	return results
 }
 
-func (m *MarketListMongoRepository) ListMarketList(id string) (models.MarketList, error) {
+func (m *MarketListMongoRepository) ListMarketList(id string) (entities.MarketList, error) {
 	objId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return models.MarketList{}, errors.New("Not found")
+		return entities.MarketList{}, errors.New("Not found")
 	}
 
-	var result models.MarketList
+	var result entities.MarketList
 	filter := bson.D{{"_id", objId}}
 	err = m.coll.FindOne(context.TODO(), filter).Decode(&result)
 
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return models.MarketList{}, errors.New("Not found")
+			return entities.MarketList{}, errors.New("Not found")
 		}
-		return models.MarketList{}, err
+		return entities.MarketList{}, err
 	}
 	return result, nil
 }
-func (m *MarketListMongoRepository) InsertMarketList(marketList *models.MarketList) (string, error) {
+func (m *MarketListMongoRepository) InsertMarketList(marketList *entities.MarketList) (string, error) {
 	result, err := m.coll.InsertOne(context.TODO(), marketList)
 	if err != nil {
 		return "", err
@@ -105,7 +106,7 @@ func (m *MarketListMongoRepository) InsertMarketList(marketList *models.MarketLi
 	return mongoId.(primitive.ObjectID).Hex(), nil
 }
 
-func (m *MarketListMongoRepository) SuggestMarketList() models.MarketList {
+func (m *MarketListMongoRepository) SuggestMarketList() entities.MarketList {
 
 	var collP = m.db.Collection(PRODUCT_COLLECTION)
 	pipeline := bson.A{
@@ -180,6 +181,22 @@ func (m *MarketListMongoRepository) SuggestMarketList() models.MarketList {
 			},
 		},
 		bson.D{
+			{"$set",
+				bson.D{
+					{"checked",
+						bson.D{
+							{"$ne",
+								bson.A{
+									"$since",
+									primitive.Null{},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		bson.D{
 			{"$match",
 				bson.D{
 					{"$expr",
@@ -187,18 +204,32 @@ func (m *MarketListMongoRepository) SuggestMarketList() models.MarketList {
 							{"$or",
 								bson.A{
 									bson.D{
-										{"$eq",
+										{"$and",
 											bson.A{
-												"$since",
-												primitive.Null{},
+												bson.D{
+													{"$eq",
+														bson.A{
+															"$checked",
+															true,
+														},
+													},
+												},
+												bson.D{
+													{"$gte",
+														bson.A{
+															"$since",
+															"$repeatms",
+														},
+													},
+												},
 											},
 										},
 									},
 									bson.D{
-										{"$gte",
+										{"$eq",
 											bson.A{
 												"$since",
-												"$repeatms",
+												primitive.Null{},
 											},
 										},
 									},
@@ -216,12 +247,13 @@ func (m *MarketListMongoRepository) SuggestMarketList() models.MarketList {
 					{"product_id", "$_id"},
 					{"_id", 0},
 					{"quantity", "$quantity"},
+					{"checked", "$checked"},
 				},
 			},
 		},
 	}
 	cursor, err := collP.Aggregate(context.TODO(), pipeline)
-	var result models.MarketList
+	var result entities.MarketList
 	if err = cursor.All(context.TODO(), &result.Items); err != nil {
 		panic(err)
 	}

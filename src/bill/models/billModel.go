@@ -3,7 +3,7 @@ package models
 import "time"
 
 var UNITS = []string{"KG", "ML", "UN"}
-
+// TODO: Esto es una entity
 type Bill struct {
 	ID     string       `json:"id,omitempty" bson:"_id,omitempty"`
 	Date   time.Time    `json:"date" bson:"date"`

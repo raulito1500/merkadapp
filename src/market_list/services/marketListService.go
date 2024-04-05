@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/raulito1500/merkadapp/src/market_list/entities"
 	"github.com/raulito1500/merkadapp/src/market_list/models"
 	"github.com/raulito1500/merkadapp/src/market_list/repository"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -19,15 +20,15 @@ func NewMarketListService(r repository.MarketListRepository) MarketListService {
 	}
 }
 
-func (b *MarketListService) ListMarketLists() []*models.MarketList {
+func (b *MarketListService) ListMarketLists() []*models.MarketListHeader {
 	return b.marketListRepository.ListMarketLists()
 }
 
-func (b *MarketListService) ListMarketList(id string) (models.MarketList, error) {
+func (b *MarketListService) ListMarketList(id string) (entities.MarketList, error) {
 	return b.marketListRepository.ListMarketList(id)
 }
 
-func (b *MarketListService) InsertMarketList(marketList *models.MarketList) (string, error) {
+func (b *MarketListService) InsertMarketList(marketList *entities.MarketList) (string, error) {
 	if hasDuplicates(marketList.Items) {
 		return "", errors.New("Product id duplicated")
 	}
@@ -37,7 +38,7 @@ func (b *MarketListService) InsertMarketList(marketList *models.MarketList) (str
 	return b.marketListRepository.InsertMarketList(marketList)
 }
 
-func (b *MarketListService) SuggestMarketList() models.MarketList {
+func (b *MarketListService) SuggestMarketList() entities.MarketList {
 	suggested := b.marketListRepository.SuggestMarketList()
 	suggested.Date = nextMarketDay()
 	return suggested
@@ -47,8 +48,8 @@ func (b *MarketListService) MarkItemCheck(idMarketList string, idItem string) er
 	return b.marketListRepository.MarkItemCheck(idMarketList, idItem)
 }
 
-// TODO: Ubicar esto en una mejor ubicación
-func hasDuplicates(items []*models.ListItem) bool {
+// TODO: Ubicar esto en una ubicación adecuada
+func hasDuplicates(items []*entities.ListItem) bool {
 	seen := make(map[string]int)
 	// TODO: No tener en cuenta si el product_id está en blanco
 	for _, i := range items {

@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/raulito1500/merkadapp/helpers"
-	"github.com/raulito1500/merkadapp/src/market_list/models"
+	"github.com/raulito1500/merkadapp/src/market_list/entities"
 	"github.com/raulito1500/merkadapp/src/market_list/services"
 )
 
@@ -36,7 +36,7 @@ func (mh MarketListHandler) ListMarketList(c *gin.Context) {
 }
 
 func (mh MarketListHandler) InsertMarketList(c *gin.Context) {
-	reqBody := new(models.MarketList)
+	reqBody := new(entities.MarketList)
 
 	if err := c.Bind(reqBody); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
