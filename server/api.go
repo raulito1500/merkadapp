@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/raulito1500/merkadapp/config"
 	"github.com/raulito1500/merkadapp/database"
@@ -30,6 +31,9 @@ func (api *Api) Run() {
 	db := database.NewMongoDatabase(config).GetDb()
 
 	server := gin.Default()
+	configCors := cors.DefaultConfig()
+	configCors.AllowAllOrigins = true
+	server.Use(cors.New(configCors))
 	api.initHandlers(db, server)
 	server.Run(":" + config.Port)
 }
