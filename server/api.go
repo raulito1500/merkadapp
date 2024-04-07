@@ -31,7 +31,7 @@ func (api *Api) Run() {
 
 	server := gin.Default()
 	api.initHandlers(db, server)
-	server.Run(config.Port)
+	server.Run(":8080")
 }
 
 func (api *Api) initHandlers(db *mongo.Database, r *gin.Engine) {
