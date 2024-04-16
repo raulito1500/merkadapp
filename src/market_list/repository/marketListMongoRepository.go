@@ -79,23 +79,112 @@ func (m *MarketListMongoRepository) ListMarketLists() []*models.MarketListHeader
 	return results
 }
 
-func (m *MarketListMongoRepository) ListMarketList(id string) (entities.MarketList, error) {
+func (m *MarketListMongoRepository) ListMarketList(id string) (models.MarketListRecommendation, error) {
 	objId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return entities.MarketList{}, errors.New("Not found")
+		return models.MarketListRecommendation{}, errors.New("Not found")
 	}
 
-	var result entities.MarketList
-	filter := bson.D{{"_id", objId}}
-	err = m.coll.FindOne(context.TODO(), filter).Decode(&result)
-
-	if err != nil {
-		if errors.Is(err, mongo.ErrNoDocuments) {
-			return entities.MarketList{}, errors.New("Not found")
-		}
-		return entities.MarketList{}, err
+	pipeline := bson.A{
+		bson.D{{"$match", bson.D{{"_id", objId}}}},
+		bson.D{{"$unwind", bson.D{{"path", "$items"}}}},
+		bson.D{
+			{"$lookup",
+				bson.D{
+					{"from", "bills"},
+					{"let", bson.D{{"product_id", "$items.product_id"}}},
+					{"pipeline",
+						bson.A{
+							bson.D{{"$unwind", bson.D{{"path", "$items"}}}},
+							bson.D{
+								{"$match",
+									bson.D{
+										{"$expr",
+											bson.D{
+												{"$eq",
+													bson.A{
+														"$items.product_id",
+														"$$product_id",
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+							bson.D{{"$sort", bson.D{{"date", -1}}}},
+							bson.D{
+								{"$group",
+									bson.D{
+										{"_id", "$items.product_id"},
+										{"last_date", bson.D{{"$first", "$date"}}},
+										{"last_where", bson.D{{"$first", "$where"}}},
+										{"last_value", bson.D{{"$first", "$items.unit_value"}}},
+									},
+								},
+							},
+						},
+					},
+					{"as", "products"},
+				},
+			},
+		},
+		bson.D{
+			{"$set",
+				bson.D{
+					{"bill_product",
+						bson.D{
+							{"$arrayElemAt",
+								bson.A{
+									"$products",
+									0,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		bson.D{
+			{"$project",
+				bson.D{
+					{"_id", 1},
+					{"date", 1},
+					{"items",
+						bson.D{
+							{"_id", "$items._id"},
+							{"product_id", "$items.product_id"},
+							{"product_name", "$items.product_name"},
+							{"quantity", "$items.quantity"},
+							{"checked", "$items.checked"},
+							{"last_value", "$bill_product.last_value"},
+							{"last_where", "$bill_product.last_where"},
+							{"last_date", "$bill_product.last_date"},
+						},
+					},
+				},
+			},
+		},
+		bson.D{
+			{"$group",
+				bson.D{
+					{"_id", "$_id"},
+					{"date", bson.D{{"$first", "$date"}}},
+					{"items", bson.D{{"$push", "$items"}}},
+				},
+			},
+		},
 	}
-	return result, nil
+	cursor, err := m.coll.Aggregate(context.TODO(), pipeline)
+	var result []models.MarketListRecommendation
+	if err = cursor.All(context.TODO(), &result); err != nil {
+		panic(err)
+	}
+	if len(result) > 0 {
+		return result[0], nil
+	} else {
+		return models.MarketListRecommendation{}, errors.New("Not found")
+	}
 }
 func (m *MarketListMongoRepository) InsertMarketList(marketList *entities.MarketList) (string, error) {
 	result, err := m.coll.InsertOne(context.TODO(), marketList)

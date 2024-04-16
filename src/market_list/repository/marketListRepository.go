@@ -6,7 +6,7 @@ import (
 )
 
 type MarketListRepository interface {
-	ListMarketList(id string) (entities.MarketList, error)
+	ListMarketList(id string) (models.MarketListRecommendation, error)
 	ListMarketLists() []*models.MarketListHeader
 	InsertMarketList(marketList *entities.MarketList) (string, error)
 	SuggestMarketList() entities.MarketList
