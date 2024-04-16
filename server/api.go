@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/raulito1500/merkadapp/config"
 	"github.com/raulito1500/merkadapp/database"
@@ -30,8 +31,11 @@ func (api *Api) Run() {
 	db := database.NewMongoDatabase(config).GetDb()
 
 	server := gin.Default()
+	configCors := cors.DefaultConfig()
+	configCors.AllowAllOrigins = true
+	server.Use(cors.New(configCors))
 	api.initHandlers(db, server)
-	server.Run(config.Port)
+	server.Run(":" + config.Port)
 }
 
 func (api *Api) initHandlers(db *mongo.Database, r *gin.Engine) {
@@ -62,10 +66,10 @@ func (api *Api) initHandlers(db *mongo.Database, r *gin.Engine) {
 	marketListHandler := MarketListHandlers.NewMarketListHandler(marketListService)
 	marketListRoutes := r.Group("/market-list")
 	{
-		marketListRoutes.GET("/", marketListHandler.ListMarketLists)
-		marketListRoutes.GET("/:id", marketListHandler.ListMarketList)
-		marketListRoutes.POST("/", marketListHandler.InsertMarketList)
-		marketListRoutes.GET("/suggested", marketListHandler.SuggestMarketList)
-		marketListRoutes.PUT("/:id/check/:idItem", marketListHandler.MarkItemCheck)
+		marketListRoutes.GET("", marketListHandler.ListMarketLists)
+		marketListRoutes.GET(":id", marketListHandler.ListMarketList)
+		marketListRoutes.POST("", marketListHandler.InsertMarketList)
+		marketListRoutes.GET("suggested", marketListHandler.SuggestMarketList)
+		marketListRoutes.PUT(":id/check/:idItem", marketListHandler.MarkItemCheck)
 	}
 }
