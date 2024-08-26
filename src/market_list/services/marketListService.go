@@ -64,6 +64,7 @@ func hasDuplicates(items []*entities.ListItem) bool {
 // TODO: Encontrar el siguiente sábado
 func nextMarketDay() time.Time {
 	today := time.Now()
-	diasHastaSabado := 6 - int(today.Weekday())
-	return today.AddDate(0, 0, diasHastaSabado)
+	daysToSaturday := 6 - int(today.Weekday())
+	nextSaturday := time.Date(today.Year(), today.Month(), today.Day()+daysToSaturday, 12, 0, 0, 0, time.UTC)
+	return nextSaturday
 }

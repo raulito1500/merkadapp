@@ -48,9 +48,9 @@ func (api *Api) initHandlers(db *mongo.Database, r *gin.Engine) {
 	productHandler := ProductHandlers.NewProductHandler(productService)
 	productRoutes := r.Group("/products")
 	{
-		productRoutes.GET("/", productHandler.ListProducts)
-		productRoutes.POST("/", productHandler.InsertProduct)
-		productRoutes.PUT("/:id", productHandler.UpdateProduct)
+		productRoutes.GET("", productHandler.ListProducts)
+		productRoutes.POST("", productHandler.InsertProduct)
+		productRoutes.PUT(":id", productHandler.UpdateProduct)
 	}
 
 	billRepository := BillRepository.NewBillMongoRepository(db)
@@ -58,12 +58,16 @@ func (api *Api) initHandlers(db *mongo.Database, r *gin.Engine) {
 	billHandler := BillHandlers.NewBillHandler(billService)
 	billRoutes := r.Group("/bills")
 	{
+		billRoutes.GET("", billHandler.ListBills)
+		billRoutes.GET(":id", billHandler.ListBill)
+		billRoutes.PUT(":id", billHandler.UpdateBill)
 		billRoutes.POST("/", billHandler.InsertBill)
+		billRoutes.PUT("/merge/:idDestination", billHandler.MergeBills)
 	}
 
 	marketListRepository := MarketListRepository.NewMarketListMongoRepository(db)
 	marketListService := MarketListServices.NewMarketListService(marketListRepository)
-	marketListHandler := MarketListHandlers.NewMarketListHandler(marketListService)
+	marketListHandler := MarketListHandlers.NewMarketListHandler(marketListService, billService)
 	marketListRoutes := r.Group("/market-list")
 	{
 		marketListRoutes.GET("", marketListHandler.ListMarketLists)
