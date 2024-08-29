@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type ProductMongoRepository struct {
@@ -25,7 +26,8 @@ func NewProductMongoRepository(db *mongo.Database) *ProductMongoRepository {
 }
 
 func (m *ProductMongoRepository) ListProducts() []*models.Product {
-	cursor, err := m.coll.Find(context.TODO(), bson.D{{}})
+	opts := options.Find().SetSort(bson.D{{"name", 1}})
+	cursor, err := m.coll.Find(context.TODO(), bson.D{{}}, opts)
 
 	if err == mongo.ErrNoDocuments {
 		fmt.Printf("No document was found\n")
@@ -42,7 +44,7 @@ func (m *ProductMongoRepository) ListProducts() []*models.Product {
 	return results
 }
 
-func (m *ProductMongoRepository) InsertProduct(product *models.Product) (string, error){
+func (m *ProductMongoRepository) InsertProduct(product *models.Product) (string, error) {
 	result, err := m.coll.InsertOne(context.TODO(), product)
 	if err != nil {
 		panic(err)

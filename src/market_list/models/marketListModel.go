@@ -20,6 +20,7 @@ type ListItemRecommendation struct {
 	ProductId   string    `json:"product_id" bson:"product_id"`
 	ProductName string    `json:"product_name" bson:"product_name"`
 	Quantity    float32   `json:"quantity" bson:"quantity"`
+	Category    string    `json:"category" bson:"category"`
 	Checked     bool      `json:"checked" bson:"checked"`
 	Value       float32   `json:"value" bson:"last_value"`
 	Where       string    `json:"where" bson:"last_where"`
