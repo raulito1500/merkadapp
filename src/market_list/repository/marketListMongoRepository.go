@@ -197,7 +197,7 @@ func (m *MarketListMongoRepository) InsertMarketList(marketList *entities.Market
 }
 
 func (m *MarketListMongoRepository) SuggestMarketList() entities.MarketList {
-
+	sensibility := 0.88
 	var collP = m.db.Collection(PRODUCT_COLLECTION)
 	pipeline := bson.A{
 		bson.D{
@@ -308,7 +308,14 @@ func (m *MarketListMongoRepository) SuggestMarketList() entities.MarketList {
 													{"$gte",
 														bson.A{
 															"$since",
-															"$repeatms",
+															bson.D{
+																{"$multiply",
+																	bson.A{
+																		"$repeatms",
+																		sensibility,
+																	},
+																},
+															},
 														},
 													},
 												},
