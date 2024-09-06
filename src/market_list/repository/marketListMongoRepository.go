@@ -197,7 +197,7 @@ func (m *MarketListMongoRepository) InsertMarketList(marketList *entities.Market
 }
 
 func (m *MarketListMongoRepository) SuggestMarketList() entities.MarketList {
-	sensibility := 0.88
+	SENSIBILITY := 0.88
 	var collP = m.db.Collection(PRODUCT_COLLECTION)
 	pipeline := bson.A{
 		bson.D{
@@ -251,18 +251,19 @@ func (m *MarketListMongoRepository) SuggestMarketList() entities.MarketList {
 							},
 						},
 					},
-				},
-			},
-		},
-		bson.D{
-			{"$set",
-				bson.D{
 					{"since",
 						bson.D{
 							{"$subtract",
 								bson.A{
 									time.Now(),
-									"$bill_product.last_date",
+									bson.D{
+										{"$arrayElemAt",
+											bson.A{
+												"$products.last_date",
+												0,
+											},
+										},
+									},
 								},
 							},
 						},
@@ -287,34 +288,32 @@ func (m *MarketListMongoRepository) SuggestMarketList() entities.MarketList {
 			},
 		},
 		bson.D{
-			{"$match",
+			{"$set",
 				bson.D{
-					{"$expr",
+					{"checked",
 						bson.D{
-							{"$or",
-								bson.A{
-									bson.D{
-										{"$and",
-											bson.A{
-												bson.D{
-													{"$eq",
-														bson.A{
-															"$checked",
-															true,
-														},
-													},
+							{"$cond",
+								bson.D{
+									{"if",
+										bson.D{
+											{"$ne",
+												bson.A{
+													"$since",
+													primitive.Null{},
 												},
-												bson.D{
-													{"$gte",
-														bson.A{
-															"$since",
-															bson.D{
-																{"$multiply",
-																	bson.A{
-																		"$repeatms",
-																		sensibility,
-																	},
-																},
+											},
+										},
+									},
+									{"then",
+										bson.D{
+											{"$gte",
+												bson.A{
+													"$since",
+													bson.D{
+														{"$multiply",
+															bson.A{
+																"$repeatms",
+																SENSIBILITY,
 															},
 														},
 													},
@@ -322,14 +321,7 @@ func (m *MarketListMongoRepository) SuggestMarketList() entities.MarketList {
 											},
 										},
 									},
-									bson.D{
-										{"$eq",
-											bson.A{
-												"$since",
-												primitive.Null{},
-											},
-										},
-									},
+									{"else", false},
 								},
 							},
 						},
@@ -346,6 +338,14 @@ func (m *MarketListMongoRepository) SuggestMarketList() entities.MarketList {
 					{"quantity", "$quantity"},
 					{"checked", "$checked"},
 					{"category", "$category"},
+				},
+			},
+		},
+		bson.D{
+			{"$sort",
+				bson.D{
+					{"category", 1},
+					{"product_name", 1},
 				},
 			},
 		},

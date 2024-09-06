@@ -97,18 +97,19 @@ func (mh MarketListHandler) MarkItemCheck(c *gin.Context) {
 			foundedItem = item
 		}
 	}
-	if foundedItem.ProductId != "" {
-		bill := new(ibm.Bill)
-		bill.Date = time.Now()
-		item := new(ibm.BillItem)
-		item.ProductId = foundedItem.ProductId
-		bill.Items = append(bill.Items, item)
-		_, err := mh.billService.InsertBill(bill)
 
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
+	bill := new(ibm.Bill)
+	bill.Date = time.Now()
+	item := new(ibm.BillItem)
+	item.ProductId = foundedItem.ProductId
+	item.Description = foundedItem.ProductName
+	bill.Items = append(bill.Items, item)
+	_, err = mh.billService.InsertBill(bill)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
+
 	c.JSON(http.StatusOK, "")
 }
