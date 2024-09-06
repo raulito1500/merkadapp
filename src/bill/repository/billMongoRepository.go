@@ -86,7 +86,6 @@ func (m *BillMongoRepository) MergeBills(idDestination string, idsOrigen []strin
 		return err
 	}
 
-	// Convertir los IDs fuente a ObjectId
 	var originIDs []primitive.ObjectID
 	for _, id := range idsOrigen {
 		objID, err := primitive.ObjectIDFromHex(id)
@@ -107,6 +106,7 @@ func (m *BillMongoRepository) MergeBills(idDestination string, idsOrigen []strin
 	}
 
 	var combinedItems []models.BillItem
+	combinedTotal := destDoc.Total
 
 	if destDoc.Items != nil {
 		for _, item := range destDoc.Items {
@@ -115,11 +115,12 @@ func (m *BillMongoRepository) MergeBills(idDestination string, idsOrigen []strin
 			}
 		}
 	}
-
+	
 	for _, doc := range sourceDocs {
 		if doc.Items != nil {
 			for _, item := range doc.Items {
 				if item != nil {
+					combinedTotal += item.Total
 					combinedItems = append(combinedItems, *item)
 				}
 			}
@@ -129,7 +130,12 @@ func (m *BillMongoRepository) MergeBills(idDestination string, idsOrigen []strin
 	_, err = m.coll.UpdateOne(
 		context.TODO(),
 		bson.M{"_id": destId},
-		bson.M{"$set": bson.M{"items": combinedItems}},
+		bson.M{
+			"$set": bson.M{
+				"items": combinedItems,
+				"total": combinedTotal,
+			},
+		},
 	)
 	if err != nil {
 		return err
