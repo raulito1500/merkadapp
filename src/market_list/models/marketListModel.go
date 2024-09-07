@@ -7,6 +7,7 @@ type MarketListHeader struct {
 	Date           time.Time `json:"date" bson:"date"`
 	CompletedItems uint16    `json:"completedItems" bson:"completedItems"`
 	TotalItems     uint16    `json:"totalItems" bson:"totalItems"`
+	EstimatedValue float32   `json:"estimatedValue" bson:"estimatedValue"`
 }
 
 type MarketListRecommendation struct {

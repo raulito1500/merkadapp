@@ -27,7 +27,11 @@ func NewMarketListHandler(ms mls.MarketListService, bs bs.BillService) MarketLis
 }
 
 func (mh MarketListHandler) ListMarketLists(c *gin.Context) {
-	marketlists := mh.marketListService.ListMarketLists()
+	marketlists, err := mh.marketListService.ListMarketLists()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 	c.JSON(http.StatusOK, marketlists)
 }
 
