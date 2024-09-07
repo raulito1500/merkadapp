@@ -20,7 +20,7 @@ func NewMarketListService(r repository.MarketListRepository) MarketListService {
 	}
 }
 
-func (b *MarketListService) ListMarketLists() []*models.MarketListHeader {
+func (b *MarketListService) ListMarketLists() ([]*models.MarketListHeader,error) {
 	return b.marketListRepository.ListMarketLists()
 }
 
