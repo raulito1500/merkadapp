@@ -55,10 +55,6 @@ func (mh MarketListHandler) InsertMarketList(c *gin.Context) {
 	}
 
 	for _, i := range reqBody.Items {
-		if err := helpers.ValidateMandatory(i.ProductId); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf(err.Error(), "Product id")})
-			return
-		}
 		if err := helpers.ValidateMandatory(i.ProductName); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf(err.Error(), "Product name")})
 			return

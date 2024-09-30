@@ -261,10 +261,24 @@ func (m *MarketListMongoRepository) ListMarketList(id string) (models.MarketList
 									bson.D{
 										{"$expr",
 											bson.D{
-												{"$eq",
+												{"$and",
 													bson.A{
-														"$items.product_id",
-														"$$product_id",
+														bson.D{
+															{"$ne",
+																bson.A{
+																	"$items.product_id",
+																	"",
+																},
+															},
+														},
+														bson.D{
+															{"$eq",
+																bson.A{
+																	"$items.product_id",
+																	"$$product_id",
+																},
+															},
+														},
 													},
 												},
 											},
