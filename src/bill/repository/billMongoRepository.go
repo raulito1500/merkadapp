@@ -27,9 +27,8 @@ func NewBillMongoRepository(db *mongo.Database) BillRepository {
 }
 
 func (m *BillMongoRepository) ListBills() []*models.Bill {
-	// opts := options.Find().SetProjection(project)
 	opts := options.Find().SetSort(bson.D{{"date", -1}, {"_id", -1}})
-	opts = opts.SetLimit(100)
+	opts = opts.SetLimit(1000)
 
 	cursor, err := m.coll.Find(context.TODO(), bson.D{}, opts)
 	if err != nil {
