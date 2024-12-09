@@ -154,3 +154,12 @@ func (bh BillHandler) UpdateBill(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"id": id})
 }
+
+func (bh BillHandler) TotalByMonth(c *gin.Context) {
+	billTotal, err := bh.billService.TotalByMonth()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, billTotal)
+}

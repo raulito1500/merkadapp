@@ -20,7 +20,7 @@ func NewMarketListService(r repository.MarketListRepository) MarketListService {
 	}
 }
 
-func (b *MarketListService) ListMarketLists() ([]*models.MarketListHeader,error) {
+func (b *MarketListService) ListMarketLists() ([]*models.MarketListHeader, error) {
 	return b.marketListRepository.ListMarketLists()
 }
 
@@ -53,9 +53,11 @@ func hasDuplicates(items []*entities.ListItem) bool {
 	seen := make(map[string]int)
 	// TODO: No tener en cuenta si el product_id está en blanco
 	for _, i := range items {
-		seen[i.ProductId]++
-		if seen[i.ProductId] > 1 {
-			return true
+		if i.ProductId != "" {
+			seen[i.ProductId]++
+			if seen[i.ProductId] > 1 {
+				return true
+			}
 		}
 	}
 	return false

@@ -1,6 +1,9 @@
 package services
 
 import (
+	"time"
+
+	"github.com/raulito1500/merkadapp/src/bill/entities"
 	"github.com/raulito1500/merkadapp/src/bill/models"
 	"github.com/raulito1500/merkadapp/src/bill/repository"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -62,4 +65,12 @@ func (b *BillService) MarkSpentItem(idBill string, idItem string) error {
 
 func (b *BillService) MergeBills(idDestination string, idsOrigen []string) error {
 	return b.billRepository.MergeBills(idDestination, idsOrigen)
+}
+
+func (b *BillService) TotalByMonth() ([]*entities.BillTotal, error) {
+	now := time.Now()
+	startDate := time.Date(now.Year(), now.Month()-2, 1, 0, 0, 0, 0, time.UTC)
+	endDate := startDate.AddDate(0, 3, 0)
+
+	return b.billRepository.TotalByMonth(startDate, endDate)
 }
