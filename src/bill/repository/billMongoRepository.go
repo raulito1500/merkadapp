@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/raulito1500/merkadapp/src/bill/entities"
 	"github.com/raulito1500/merkadapp/src/bill/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -114,7 +115,7 @@ func (m *BillMongoRepository) MergeBills(idDestination string, idsOrigen []strin
 			}
 		}
 	}
-	
+
 	for _, doc := range sourceDocs {
 		if doc.Items != nil {
 			for _, item := range doc.Items {
@@ -167,4 +168,40 @@ func (m *BillMongoRepository) MarkSpentItem(idBill string, idItem string) error 
 		return err
 	}
 	return nil
+}
+
+func (m *BillMongoRepository) TotalByMonth(startDate time.Time, endDate time.Time) ([]*entities.BillTotal, error) {
+	pipeline := bson.A{
+		bson.D{
+			{"$match", bson.D{
+				{"date", bson.D{
+					{"$gte", startDate},
+					{"$lt", endDate},
+				}},
+			}},
+		},
+		bson.D{
+			{"$addFields", bson.D{
+				{"month", bson.D{{"$month", "$date"}}},
+			}},
+		},
+		bson.D{
+			{"$group", bson.D{
+				{"_id", "$month"},
+				{"total", bson.D{{"$sum", "$total"}}},
+			}},
+		},
+		bson.D{{"$sort", bson.D{{"_id", -1}}}},
+	}
+
+	cursor, err := m.coll.Aggregate(context.TODO(), pipeline)
+	var result []*entities.BillTotal
+	if err = cursor.All(context.TODO(), &result); err != nil {
+		panic(err)
+	}
+	if len(result) > 0 {
+		return result, nil
+	} else {
+		return []*entities.BillTotal{}, errors.New("Not found")
+	}
 }

@@ -63,6 +63,7 @@ func (api *Api) initHandlers(db *mongo.Database, r *gin.Engine) {
 		billRoutes.PUT(":id", billHandler.UpdateBill)
 		billRoutes.POST("/", billHandler.InsertBill)
 		billRoutes.PUT("/merge/:idDestination", billHandler.MergeBills)
+		billRoutes.GET("/byMonth", billHandler.TotalByMonth)
 	}
 
 	marketListRepository := MarketListRepository.NewMarketListMongoRepository(db)
