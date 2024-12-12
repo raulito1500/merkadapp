@@ -29,28 +29,28 @@ func (ph ProductHandler) InsertProduct(c *gin.Context) {
 	reqBody := new(models.Product)
 
 	if err := c.Bind(reqBody); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
 	if err := helpers.ValidateMandatory(reqBody.Category); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf(err.Error(), "Category")})
+		c.JSON(http.StatusBadRequest, gin.H{"message": fmt.Sprintf(err.Error(), "Category")})
 		return
 	}
 	if err := helpers.ValidateInEnum(reqBody.Category, models.CATEGORIES); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf(err.Error(), "Category")})
+		c.JSON(http.StatusBadRequest, gin.H{"message": fmt.Sprintf(err.Error(), "Category")})
 		return
 	}
 	if err := helpers.ValidateMandatory(reqBody.Name); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf(err.Error(), "Name")})
+		c.JSON(http.StatusBadRequest, gin.H{"message": fmt.Sprintf(err.Error(), "Name")})
 		return
 	}
 	if err := helpers.ValidateMandatory(reqBody.Repeat); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf(err.Error(), "Repeat")})
+		c.JSON(http.StatusBadRequest, gin.H{"message": fmt.Sprintf(err.Error(), "Repeat")})
 		return
 	}
 	if err := helpers.ValidateIntNonZeroPositive(reqBody.Quantity); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf(err.Error(), "Quantity")})
+		c.JSON(http.StatusBadRequest, gin.H{"message": fmt.Sprintf(err.Error(), "Quantity")})
 		return
 	}
 

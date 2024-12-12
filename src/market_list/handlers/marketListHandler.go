@@ -29,7 +29,7 @@ func NewMarketListHandler(ms mls.MarketListService, bs bs.BillService) MarketLis
 func (mh MarketListHandler) ListMarketLists(c *gin.Context) {
 	marketlists, err := mh.marketListService.ListMarketLists()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, marketlists)
@@ -40,7 +40,7 @@ func (mh MarketListHandler) ListMarketList(c *gin.Context) {
 	// TODO Averiguar porque está usando el modelo de recomendation
 	marketlist, err := mh.marketListService.ListMarketList(id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, marketlist)
@@ -50,24 +50,24 @@ func (mh MarketListHandler) InsertMarketList(c *gin.Context) {
 	reqBody := new(entities.MarketList)
 
 	if err := c.Bind(reqBody); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
 	for _, i := range reqBody.Items {
 		if err := helpers.ValidateMandatory(i.ProductName); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf(err.Error(), "Product name")})
+			c.JSON(http.StatusBadRequest, gin.H{"message": fmt.Sprintf(err.Error(), "Product name")})
 			return
 		}
 		if err := helpers.ValidateFloatNonZeroPositive(i.Quantity); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf(err.Error(), "Product quantity")})
+			c.JSON(http.StatusBadRequest, gin.H{"message": fmt.Sprintf(err.Error(), "Product quantity")})
 			return
 		}
 	}
 
 	insertedID, err := mh.marketListService.InsertMarketList(reqBody)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"id": insertedID})
@@ -83,12 +83,12 @@ func (mh MarketListHandler) MarkItemCheck(c *gin.Context) {
 
 	err := mh.marketListService.MarkItemCheck(idMarketList, idItem)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 	}
 
 	marketlist, err := mh.marketListService.ListMarketList(idMarketList)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
 		return
 	}
 	foundedItem := new(imlm.ListItemRecommendation)
@@ -107,7 +107,7 @@ func (mh MarketListHandler) MarkItemCheck(c *gin.Context) {
 	_, err = mh.billService.InsertBill(bill)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
 
