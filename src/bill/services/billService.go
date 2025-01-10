@@ -69,8 +69,8 @@ func (b *BillService) MergeBills(idDestination string, idsOrigen []string) error
 
 func (b *BillService) TotalByMonth() ([]*entities.BillTotal, error) {
 	now := time.Now()
-	startDate := time.Date(now.Year(), now.Month()-2, 1, 0, 0, 0, 0, time.UTC)
-	endDate := startDate.AddDate(0, 3, 0)
+	startDate := time.Date(now.Year(), now.Month()-5, 1, 0, 0, 0, 0, time.UTC)
+	endDate := startDate.AddDate(0, 6, 0)
 
 	return b.billRepository.TotalByMonth(startDate, endDate)
 }
