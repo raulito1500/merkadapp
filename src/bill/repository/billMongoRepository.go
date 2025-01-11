@@ -181,27 +181,39 @@ func (m *BillMongoRepository) TotalByMonth(startDate time.Time, endDate time.Tim
 			}},
 		},
 		bson.D{
-			{"$addFields", bson.D{
-				{"month", bson.D{{"$month", "$date"}}},
-			}},
+			{"$addFields",
+				bson.D{
+					{"date",
+						bson.D{
+							{"$dateTrunc",
+								bson.D{
+									{"date", "$date"},
+									{"unit", "month"},
+									{"timezone", "-05"},									
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 		bson.D{
 			{"$group", bson.D{
-				{"_id", "$month"},
+				{"_id", "$date"},
 				{"total", bson.D{{"$sum", "$total"}}},
 			}},
 		},
-		bson.D{{"$sort", bson.D{{"_id", -1}}}},
+		bson.D{{"$sort", bson.D{{"_id", 1}}}},
 	}
 
 	cursor, err := m.coll.Aggregate(context.TODO(), pipeline)
 	var result []*entities.BillTotal
 	if err = cursor.All(context.TODO(), &result); err != nil {
-		panic(err)
+		return nil, err
 	}
 	if len(result) > 0 {
 		return result, nil
 	} else {
-		return []*entities.BillTotal{}, errors.New("Not found")
+		return []*entities.BillTotal{}, nil
 	}
 }
