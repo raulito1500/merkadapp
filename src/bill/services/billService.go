@@ -74,3 +74,7 @@ func (b *BillService) TotalByMonth() ([]*entities.BillTotal, error) {
 
 	return b.billRepository.TotalByMonth(startDate, endDate)
 }
+
+func (b *BillService) BillItemsByProduct(id string) ([]*entities.BillItem, error){
+	return b.billRepository.BillItemsByProduct(id)
+}
