@@ -189,7 +189,7 @@ func (m *BillMongoRepository) TotalByMonth(startDate time.Time, endDate time.Tim
 								bson.D{
 									{"date", "$date"},
 									{"unit", "month"},
-									{"timezone", "-05"},									
+									{"timezone", "-05"},
 								},
 							},
 						},
@@ -215,5 +215,44 @@ func (m *BillMongoRepository) TotalByMonth(startDate time.Time, endDate time.Tim
 		return result, nil
 	} else {
 		return []*entities.BillTotal{}, nil
+	}
+}
+func (m *BillMongoRepository) BillItemsByProduct(id string) ([]*entities.BillItem, error) {
+	pipeline := bson.A{
+		bson.D{{"$match", bson.D{{"items.product_id", id}}}},
+		bson.D{{"$unwind", bson.D{{"path", "$items"}}}},
+		bson.D{{"$match", bson.D{{"items.product_id", id}}}},
+		bson.D{
+			{"$replaceRoot",
+				bson.D{
+					{"newRoot",
+						bson.D{
+							{"$mergeObjects",
+								bson.A{
+									bson.D{
+										{"bill_id", "$_id"},
+										{"date", "$date"},
+										{"where", "$where"},
+									},
+									"$items",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		bson.D{{"$sort", bson.D{{"date", -1}}}},
+		bson.D{{"$limit", 10}},
+	}
+	cursor, err := m.coll.Aggregate(context.TODO(), pipeline)
+	var result []*entities.BillItem
+	if err = cursor.All(context.TODO(), &result); err != nil {
+		return nil, err
+	}
+	if len(result) > 0 {
+		return result, nil
+	} else {
+		return []*entities.BillItem{}, nil
 	}
 }

@@ -15,4 +15,5 @@ type BillRepository interface {
 	UdpateBill(id string, bill *models.Bill) error
 	MergeBills(idDestination string, idsOrigen []string) error
 	TotalByMonth(startDate time.Time, endDate time.Time) ([]*entities.BillTotal, error)
+	BillItemsByProduct(id string) ([]*entities.BillItem, error)
 }

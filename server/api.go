@@ -48,7 +48,7 @@ func (api *Api) initHandlers(db *mongo.Database, r *gin.Engine) {
 	productHandler := ProductHandlers.NewProductHandler(productService)
 	productRoutes := r.Group("/products")
 	{
-		productRoutes.GET(":value", productHandler.ListProducts)
+		productRoutes.GET(":id", productHandler.ListProducts)
 		productRoutes.POST("", productHandler.InsertProduct)
 		productRoutes.PUT(":id", productHandler.UpdateProduct)
 	}
@@ -65,6 +65,8 @@ func (api *Api) initHandlers(db *mongo.Database, r *gin.Engine) {
 		billRoutes.PUT("/merge/:idDestination", billHandler.MergeBills)
 		billRoutes.GET("/byMonth", billHandler.TotalByMonth)
 	}
+
+	r.GET("/products/:id/bill-items", billHandler.BillItemsByProduct)
 
 	marketListRepository := MarketListRepository.NewMarketListMongoRepository(db)
 	marketListService := MarketListServices.NewMarketListService(marketListRepository)
