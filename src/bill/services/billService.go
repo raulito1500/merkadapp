@@ -78,3 +78,7 @@ func (b *BillService) TotalByMonth() ([]*entities.BillTotal, error) {
 func (b *BillService) BillItemsByProduct(id string) ([]*entities.BillItem, error){
 	return b.billRepository.BillItemsByProduct(id)
 }
+
+func (b *BillService) RecommendedProducts() ([]*entities.Recommendation, error){
+	return b.billRepository.RecommendedProducts()
+}

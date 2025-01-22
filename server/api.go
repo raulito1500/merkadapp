@@ -67,6 +67,7 @@ func (api *Api) initHandlers(db *mongo.Database, r *gin.Engine) {
 	}
 
 	r.GET("/products/:id/bill-items", billHandler.BillItemsByProduct)
+	r.GET("/products/recommendations", billHandler.RecommendedProducts)
 
 	marketListRepository := MarketListRepository.NewMarketListMongoRepository(db)
 	marketListService := MarketListServices.NewMarketListService(marketListRepository)

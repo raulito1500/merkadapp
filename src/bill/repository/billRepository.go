@@ -16,4 +16,5 @@ type BillRepository interface {
 	MergeBills(idDestination string, idsOrigen []string) error
 	TotalByMonth(startDate time.Time, endDate time.Time) ([]*entities.BillTotal, error)
 	BillItemsByProduct(id string) ([]*entities.BillItem, error)
+	RecommendedProducts() ([]*entities.Recommendation, error)
 }
