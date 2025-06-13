@@ -182,3 +182,18 @@ func (bh BillHandler) RecommendedProducts(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, recommendations)
 }
+
+func (bh BillHandler) UploadXML(c *gin.Context) {
+	file, err := c.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	insertedID, err := bh.billService.UploadXML(file)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"id": insertedID})
+}

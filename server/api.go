@@ -64,6 +64,7 @@ func (api *Api) initHandlers(db *mongo.Database, r *gin.Engine) {
 		billRoutes.POST("/", billHandler.InsertBill)
 		billRoutes.PUT("/merge/:idDestination", billHandler.MergeBills)
 		billRoutes.GET("/byMonth", billHandler.TotalByMonth)
+		billRoutes.POST("upload/xml", billHandler.UploadXML)
 	}
 
 	r.GET("/products/:id/bill-items", billHandler.BillItemsByProduct)

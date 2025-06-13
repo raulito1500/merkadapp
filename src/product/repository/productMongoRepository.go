@@ -26,7 +26,7 @@ func NewProductMongoRepository(db *mongo.Database) *ProductMongoRepository {
 }
 
 func (m *ProductMongoRepository) ListProducts() []*models.Product {
-	opts := options.Find().SetSort(bson.D{{"name", 1}})
+	opts := options.Find().SetSort(bson.D{{"name", 1}}).SetCollation(&options.Collation{Locale: "en"})
 	cursor, err := m.coll.Find(context.TODO(), bson.D{{}}, opts)
 
 	if err == mongo.ErrNoDocuments {
