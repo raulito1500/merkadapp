@@ -102,3 +102,7 @@ DATABASE_URL=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/
 DATABASE_NAME=merkadapp
 PORT=8080
 ```
+
+## License
+
+[PolyForm Noncommercial 1.0.0](LICENSE) — free to use, copy, modify and distribute for noncommercial purposes (personal, educational, portfolio). Commercial use requires permission from the author.
