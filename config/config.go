@@ -15,9 +15,8 @@ type Config struct {
 }
 
 func NewConfig() *Config {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatal("Error loading enviroments")
+	if err := godotenv.Load(".env"); err != nil {
+		log.Println("No .env file found, using system environment variables")
 	}
 	return &Config{
 		DatabaseUrl:  os.Getenv("DATABASE_URL"),
