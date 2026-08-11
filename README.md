@@ -61,6 +61,7 @@ src/
 | `PUT` | `/bills/:id` | Update bill |
 | `PUT` | `/bills/merge/:idDestination` | Merge multiple bills into one |
 | `GET` | `/bills/byMonth` | Monthly spending totals for the last 6 months |
+| `POST` | `/bills/upload/xml` | Create a bill by uploading an XML receipt (multipart `file` field) |
 
 ### Market Lists
 
