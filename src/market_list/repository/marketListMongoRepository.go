@@ -77,6 +77,14 @@ func (m *MarketListMongoRepository) ListMarketLists() ([]*models.MarketListHeade
 									},
 								},
 							},
+							bson.D{
+								{"$match",
+									bson.D{
+										{"where", bson.D{{"$ne", ""}}},
+										{"items.total", bson.D{{"$gt", 0}}},
+									},
+								},
+							},
 							bson.D{{"$sort", bson.D{{"date", -1}}}},
 							bson.D{
 								{"$group",
@@ -286,6 +294,14 @@ func (m *MarketListMongoRepository) ListMarketList(id string) (models.MarketList
 									},
 								},
 							},
+							bson.D{
+								{"$match",
+									bson.D{
+										{"where", bson.D{{"$ne", ""}}},
+										{"items.total", bson.D{{"$gt", 0}}},
+									},
+								},
+							},
 							bson.D{{"$sort", bson.D{{"date", -1}}}},
 							bson.D{
 								{"$group",
@@ -435,10 +451,21 @@ func (m *MarketListMongoRepository) SuggestMarketList() entities.MarketList {
 								},
 							},
 							bson.D{
+								{"$match",
+									bson.D{
+										{"where", bson.D{{"$ne", ""}}},
+										{"items.total", bson.D{{"$gt", 0}}},
+									},
+								},
+							},
+							bson.D{{"$sort", bson.D{{"date", -1}}}},
+							bson.D{
 								{"$group",
 									bson.D{
 										{"_id", "$items.product_id"},
-										{"last_date", bson.D{{"$max", "$date"}}},
+										{"last_date", bson.D{{"$first", "$date"}}},
+										{"last_where", bson.D{{"$first", "$where"}}},
+										{"last_value", bson.D{{"$first", "$items.total"}}},
 									},
 								},
 							},
@@ -456,6 +483,36 @@ func (m *MarketListMongoRepository) SuggestMarketList() entities.MarketList {
 							{"$arrayElemAt",
 								bson.A{
 									"$products",
+									0,
+								},
+							},
+						},
+					},
+					{"last_value",
+						bson.D{
+							{"$arrayElemAt",
+								bson.A{
+									"$products.last_value",
+									0,
+								},
+							},
+						},
+					},
+					{"last_where",
+						bson.D{
+							{"$arrayElemAt",
+								bson.A{
+									"$products.last_where",
+									0,
+								},
+							},
+						},
+					},
+					{"last_date",
+						bson.D{
+							{"$arrayElemAt",
+								bson.A{
+									"$products.last_date",
 									0,
 								},
 							},
@@ -548,6 +605,9 @@ func (m *MarketListMongoRepository) SuggestMarketList() entities.MarketList {
 					{"quantity", "$quantity"},
 					{"checked", "$checked"},
 					{"category", "$category"},
+					{"last_value", "$last_value"},
+					{"last_where", "$last_where"},
+					{"last_date", "$last_date"},
 				},
 			},
 		},

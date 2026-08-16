@@ -14,7 +14,7 @@ func NewProductService(r repository.ProductRepository) ProductService {
 		productRepository: r,
 	}
 }
-func (p *ProductService) ListProducts() []*models.Product {
+func (p *ProductService) ListProducts() []*models.ProductListItem {
 	return p.productRepository.ListProducts()
 }
 

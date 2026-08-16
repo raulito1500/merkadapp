@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 var CATEGORIES = []string{"CANNED", "DELI", "PASTA", "CLEANERS", "FRUITS", "VEGETABLES", "SAUCES", "BEVERAGE", "DAIRY", "FROZEN", "PERSONAL_CARE", "SNACKS", "MEAT", "CONDIMENTS", "BAKERY", "SEAFOOD", "UNCATEGORIZED"}
 
 const (
@@ -16,6 +18,15 @@ type Product struct {
 	IsBase   bool   `json:"is_base" bson:"is_base"`
 	Repeat   string `json:"repeat" bson:"repeat"`
 	RepeatMS int    `json:"repeatms,omitempty" bson:"repeatms"`
+}
+
+type ProductListItem struct {
+	Product       `bson:",inline"`
+	LastWhere     *string    `json:"last_where,omitempty" bson:"last_where,omitempty"`
+	LastValue     *float32   `json:"last_value,omitempty" bson:"last_value,omitempty"`
+	LastDate      *time.Time `json:"last_date,omitempty" bson:"last_date,omitempty"`
+	PreviousValue *float32   `json:"-" bson:"previous_value,omitempty"`
+	TrendPercent  *float32   `json:"trend_percent,omitempty" bson:"-"`
 }
 
 func (p *Product) GenMS() {
