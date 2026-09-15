@@ -87,6 +87,7 @@ func (bh BillHandler) MarkSpentItem(c *gin.Context) {
 	err := bh.billService.MarkSpentItem(idBill, idItem)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
 	}
 	c.JSON(http.StatusOK, "")
 }
@@ -106,6 +107,7 @@ func (bh BillHandler) MergeBills(c *gin.Context) {
 	err := bh.billService.MergeBills(idDestination, idsOrigen)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
 	}
 	c.JSON(http.StatusOK, "")
 }

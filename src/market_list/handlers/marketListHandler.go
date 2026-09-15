@@ -84,6 +84,7 @@ func (mh MarketListHandler) MarkItemCheck(c *gin.Context) {
 	err := mh.marketListService.MarkItemCheck(idMarketList, idItem)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
 	}
 
 	marketlist, err := mh.marketListService.ListMarketList(idMarketList)
