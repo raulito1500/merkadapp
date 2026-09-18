@@ -21,6 +21,7 @@ Most of this is ordinary CRUD. Three parts aren't:
 - **Go 1.22**
 - **Gin** — HTTP router and middleware
 - **MongoDB** — via the official Go driver, aggregation pipelines written by hand
+- **Firebase Admin SDK** — verifies the Firebase ID token the frontend sends, same auth model as [merkadapp_expenses-api](https://github.com/raulito1500/merkadapp_expenses-api)
 - **Gorilla WebSocket** — connection upgrade for a notifications channel (see *Status* below)
 
 ## Architecture
@@ -31,7 +32,7 @@ Strict handlers → services → repositories separation, with each domain (`bil
 
 This started as a personal project and still runs as one. It works and it's deployed, but it has never had to survive anyone but me, and the gaps show:
 
-- **No authentication or authorization.** Every route is open. A `JWT_SECRET` config value exists but is dead code, unrelated to the frontend's Firebase login, which this API does not enforce. This is the first thing that would have to change before it was worth anything to anyone else.
+- **Auth checks a token, not ownership.** `/products`, `/bills` and `/market-list` require a valid Firebase ID token (`Authorization: Bearer <token>`, verified in `middleware/firebase_auth.go`), but there's still no `User` model or per-user data scoping — any authenticated user sees all data. `/ws` remains open (a browser WebSocket handshake can't carry a bearer header).
 - **CORS allows all origins**, which is a deliberate convenience that pairs badly with the point above.
 - **The WebSocket endpoint is a stub.** It upgrades the connection and then writes a fixed message on a timer. The channel exists; nothing meaningful flows through it yet.
 - **Test coverage is one file.** Validators only.
@@ -52,6 +53,7 @@ There's no generated documentation yet. Routes and their exact paths are registe
 | WebSocket upgrade | `src/notification/handlers` |
 | Config loading (env vars) | `config/` |
 | MongoDB connection setup | `database/` |
+| Firebase ID token verification | `middleware/firebase_auth.go` |
 
 ## Getting started
 
@@ -62,7 +64,8 @@ git clone https://github.com/raulito1500/merkadapp.git
 cd merkadapp
 
 cp .env.example .env
-# edit .env and fill in your MongoDB credentials — .env.example documents every variable
+# edit .env and fill in your MongoDB credentials and Firebase service account (project id,
+# client email, private key) — .env.example documents every variable
 
 go mod download
 go run .

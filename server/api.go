@@ -1,10 +1,14 @@
 package server
 
 import (
+	"log"
+
+	"firebase.google.com/go/v4/auth"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/raulito1500/merkadapp/config"
 	"github.com/raulito1500/merkadapp/database"
+	"github.com/raulito1500/merkadapp/middleware"
 	BillHandlers "github.com/raulito1500/merkadapp/src/bill/handlers"
 	BillRepository "github.com/raulito1500/merkadapp/src/bill/repository"
 	BillServices "github.com/raulito1500/merkadapp/src/bill/services"
@@ -30,15 +34,21 @@ func (api *Api) Run() {
 	config := config.NewConfig()
 	db := database.NewMongoDatabase(config).GetDb()
 
+	authClient, err := middleware.NewFirebaseAuthClient(config)
+	if err != nil {
+		log.Fatalf("failed to initialize Firebase auth client: %v", err)
+	}
+
 	server := gin.Default()
 	configCors := cors.DefaultConfig()
 	configCors.AllowAllOrigins = true
 	server.Use(cors.New(configCors))
-	api.initHandlers(db, server)
+	api.initHandlers(db, server, authClient)
 	server.Run(":" + config.Port)
 }
 
-func (api *Api) initHandlers(db *mongo.Database, r *gin.Engine) {
+func (api *Api) initHandlers(db *mongo.Database, r *gin.Engine, authClient *auth.Client) {
+	requireAuth := middleware.RequireFirebaseAuth(authClient)
 
 	notificationHandler := NotificationHandler.NewNotificationHandler()
 	r.GET("/ws", notificationHandler.WebSocketHandler)
@@ -46,7 +56,7 @@ func (api *Api) initHandlers(db *mongo.Database, r *gin.Engine) {
 	productRepository := ProductRepository.NewProductMongoRepository(db)
 	productService := ProductServices.NewProductService(productRepository)
 	productHandler := ProductHandlers.NewProductHandler(productService)
-	productRoutes := r.Group("/products")
+	productRoutes := r.Group("/products", requireAuth)
 	{
 		productRoutes.GET(":id", productHandler.ListProducts)
 		productRoutes.POST("", productHandler.InsertProduct)
@@ -56,7 +66,7 @@ func (api *Api) initHandlers(db *mongo.Database, r *gin.Engine) {
 	billRepository := BillRepository.NewBillMongoRepository(db)
 	billService := BillServices.NewBillService(billRepository)
 	billHandler := BillHandlers.NewBillHandler(billService)
-	billRoutes := r.Group("/bills")
+	billRoutes := r.Group("/bills", requireAuth)
 	{
 		billRoutes.GET("", billHandler.ListBills)
 		billRoutes.GET(":id", billHandler.ListBill)
@@ -67,13 +77,13 @@ func (api *Api) initHandlers(db *mongo.Database, r *gin.Engine) {
 		billRoutes.POST("upload/xml", billHandler.UploadXML)
 	}
 
-	r.GET("/products/:id/bill-items", billHandler.BillItemsByProduct)
-	r.GET("/products/recommendations", billHandler.RecommendedProducts)
+	r.GET("/products/:id/bill-items", requireAuth, billHandler.BillItemsByProduct)
+	r.GET("/products/recommendations", requireAuth, billHandler.RecommendedProducts)
 
 	marketListRepository := MarketListRepository.NewMarketListMongoRepository(db)
 	marketListService := MarketListServices.NewMarketListService(marketListRepository)
 	marketListHandler := MarketListHandlers.NewMarketListHandler(marketListService, billService)
-	marketListRoutes := r.Group("/market-list")
+	marketListRoutes := r.Group("/market-list", requireAuth)
 	{
 		marketListRoutes.GET("", marketListHandler.ListMarketLists)
 		marketListRoutes.GET(":id", marketListHandler.ListMarketList)
