@@ -42,6 +42,7 @@ func (api *Api) Run() {
 	server := gin.Default()
 	configCors := cors.DefaultConfig()
 	configCors.AllowAllOrigins = true
+	configCors.AllowHeaders = append(configCors.AllowHeaders, "Authorization")
 	server.Use(cors.New(configCors))
 	api.initHandlers(db, server, authClient)
 	server.Run(":" + config.Port)

@@ -3,6 +3,8 @@ package middleware
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"log"
 	"net/http"
 	"strings"
 
@@ -20,10 +22,11 @@ type serviceAccountKey struct {
 	ClientEmail string `json:"client_email"`
 	TokenURI    string `json:"token_uri"`
 }
-
-// NewFirebaseAuthClient builds a Firebase Auth client from the project id,
-// client email and private key of a service account.
 func NewFirebaseAuthClient(cfg *config.Config) (*auth.Client, error) {
+	if cfg.FirebaseProjectID == "" || cfg.FirebaseClientEmail == "" || cfg.FirebasePrivateKey == "" {
+		return nil, errors.New("FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL and FIREBASE_PRIVATE_KEY must be set")
+	}
+
 	privateKey := strings.ReplaceAll(cfg.FirebasePrivateKey, "\\n", "\n")
 
 	credentialsJSON, err := json.Marshal(serviceAccountKey{
@@ -45,8 +48,6 @@ func NewFirebaseAuthClient(cfg *config.Config) (*auth.Client, error) {
 	return app.Auth(context.Background())
 }
 
-// RequireFirebaseAuth verifies the Firebase ID token sent as a
-// `Authorization: Bearer <token>` header.
 func RequireFirebaseAuth(authClient *auth.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		header := c.GetHeader("Authorization")
@@ -58,6 +59,7 @@ func RequireFirebaseAuth(authClient *auth.Client) gin.HandlerFunc {
 
 		decoded, err := authClient.VerifyIDToken(c.Request.Context(), token)
 		if err != nil {
+			log.Printf("firebase auth: token verification failed: %v", err)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Invalid or expired token"})
 			return
 		}
