@@ -8,10 +8,12 @@ import (
 )
 
 type Config struct {
-	DatabaseUrl  string
-	DatabaseName string
-	Port         string
-	JWTSecret    string
+	DatabaseUrl         string
+	DatabaseName        string
+	Port                string
+	FirebaseProjectID   string
+	FirebaseClientEmail string
+	FirebasePrivateKey  string
 }
 
 func NewConfig() *Config {
@@ -19,9 +21,11 @@ func NewConfig() *Config {
 		log.Println("No .env file found, using system environment variables")
 	}
 	return &Config{
-		DatabaseUrl:  os.Getenv("DATABASE_URL"),
-		DatabaseName: os.Getenv("DATABASE_NAME"),
-		JWTSecret:    os.Getenv("JWT_SECRET"),
-		Port:         os.Getenv("PORT"),
+		DatabaseUrl:         os.Getenv("DATABASE_URL"),
+		DatabaseName:        os.Getenv("DATABASE_NAME"),
+		Port:                os.Getenv("PORT"),
+		FirebaseProjectID:   os.Getenv("FIREBASE_PROJECT_ID"),
+		FirebaseClientEmail: os.Getenv("FIREBASE_CLIENT_EMAIL"),
+		FirebasePrivateKey:  os.Getenv("FIREBASE_PRIVATE_KEY"),
 	}
 }
