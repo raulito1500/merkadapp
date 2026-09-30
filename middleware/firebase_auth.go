@@ -22,6 +22,7 @@ type serviceAccountKey struct {
 	ClientEmail string `json:"client_email"`
 	TokenURI    string `json:"token_uri"`
 }
+
 func NewFirebaseAuthClient(cfg *config.Config) (*auth.Client, error) {
 	if cfg.FirebaseProjectID == "" || cfg.FirebaseClientEmail == "" || cfg.FirebasePrivateKey == "" {
 		return nil, errors.New("FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL and FIREBASE_PRIVATE_KEY must be set")
