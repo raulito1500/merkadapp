@@ -35,6 +35,15 @@ func (mh MarketListHandler) ListMarketLists(c *gin.Context) {
 	c.JSON(http.StatusOK, marketlists)
 }
 
+func (mh MarketListHandler) RecentIngredients(c *gin.Context) {
+	ingredients, err := mh.marketListService.RecentIngredients()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, ingredients)
+}
+
 func (mh MarketListHandler) ListMarketList(c *gin.Context) {
 	id := c.Param("id")
 	// TODO Averiguar porque está usando el modelo de recomendation

@@ -27,6 +27,38 @@ func NewMarketListMongoRepository(db *mongo.Database) MarketListRepository {
 	}
 }
 
+// RecentIngredients returns the checked, edible items of the latest market list
+// that has at least one checked item.
+func (m *MarketListMongoRepository) RecentIngredients() ([]models.RecentIngredient, error) {
+	pipeline := mongo.Pipeline{
+		bson.D{{"$match", bson.D{{"items", bson.D{{"$elemMatch", bson.D{{"checked", true}}}}}}}},
+		bson.D{{"$sort", bson.D{{"date", -1}, {"_id", -1}}}},
+		bson.D{{"$limit", 1}},
+		bson.D{{"$unwind", "$items"}},
+		bson.D{{"$match", bson.D{
+			{"items.checked", true},
+			{"items.category", bson.D{{"$nin", bson.A{"CLEANERS", "PERSONAL_CARE"}}}},
+		}}},
+		bson.D{{"$project", bson.D{
+			{"_id", 0},
+			{"product_id", "$items.product_id"},
+			{"product_name", "$items.product_name"},
+			{"category", "$items.category"},
+		}}},
+	}
+	cursor, err := m.coll.Aggregate(context.TODO(), pipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.TODO())
+
+	results := []models.RecentIngredient{}
+	if err := cursor.All(context.TODO(), &results); err != nil {
+		return nil, err
+	}
+	return results, nil
+}
+
 func (m *MarketListMongoRepository) ListMarketLists() ([]*models.MarketListHeader, error) {
 	pipeline := bson.A{
 		bson.D{{"$sort", bson.D{{"date", -1}}}},

@@ -90,6 +90,7 @@ func (api *Api) initHandlers(db *mongo.Database, r *gin.Engine, authClient *auth
 		marketListRoutes.GET(":id", marketListHandler.ListMarketList)
 		marketListRoutes.POST("", marketListHandler.InsertMarketList)
 		marketListRoutes.GET("suggested", marketListHandler.SuggestMarketList)
+		marketListRoutes.GET("recent-ingredients", marketListHandler.RecentIngredients)
 		marketListRoutes.PUT(":id/check/:idItem", marketListHandler.MarkItemCheck)
 	}
 }

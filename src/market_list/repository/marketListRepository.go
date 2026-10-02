@@ -10,5 +10,6 @@ type MarketListRepository interface {
 	ListMarketLists() ([]*models.MarketListHeader,error)
 	InsertMarketList(marketList *entities.MarketList) (string, error)
 	SuggestMarketList() entities.MarketList
+	RecentIngredients() ([]models.RecentIngredient, error)
 	MarkItemCheck(idMarketList string, idProduct string) error
 }
