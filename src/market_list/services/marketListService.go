@@ -24,10 +24,6 @@ func (b *MarketListService) ListMarketLists() ([]*models.MarketListHeader, error
 	return b.marketListRepository.ListMarketLists()
 }
 
-func (b *MarketListService) RecentIngredients() ([]models.RecentIngredient, error) {
-	return b.marketListRepository.RecentIngredients()
-}
-
 func (b *MarketListService) ListMarketList(id string) (models.MarketListRecommendation, error) {
 	return b.marketListRepository.ListMarketList(id)
 }

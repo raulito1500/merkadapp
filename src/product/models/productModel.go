@@ -8,6 +8,7 @@ const (
 	ONE_DAY_MS   = 1000 * 60 * 60 * 24
 	ONE_WEEK_MS  = ONE_DAY_MS * 7
 	ONE_MONTH_MS = ONE_DAY_MS * 30
+	DEFAULT_PERIOD_MS = ONE_MONTH_MS * 6
 )
 
 type Product struct {
@@ -18,6 +19,12 @@ type Product struct {
 	IsBase   bool   `json:"is_base" bson:"is_base"`
 	Repeat   string `json:"repeat" bson:"repeat"`
 	RepeatMS int    `json:"repeatms,omitempty" bson:"repeatms"`
+}
+
+type AvailableIngredient struct {
+	ProductId   string `json:"product_id" bson:"product_id"`
+	ProductName string `json:"product_name" bson:"product_name"`
+	Category    string `json:"category" bson:"category"`
 }
 
 type ProductListItem struct {

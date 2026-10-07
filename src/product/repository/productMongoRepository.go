@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/raulito1500/merkadapp/src/product/models"
 	"go.mongodb.org/mongo-driver/bson"
@@ -17,12 +18,74 @@ type ProductMongoRepository struct {
 }
 
 const PRODUCT_COLLECTION = "products"
+const MARKET_LIST_COLLECTION = "market_list"
 
 func NewProductMongoRepository(db *mongo.Database) *ProductMongoRepository {
 	return &ProductMongoRepository{
 		db:   db,
 		coll: db.Collection(PRODUCT_COLLECTION),
 	}
+}
+
+// AvailableIngredients returns the edible products checked in a market list within
+// their repeat window (DEFAULT_PERIOD_MS when the product has none or has no id).
+func (m *ProductMongoRepository) AvailableIngredients() ([]models.AvailableIngredient, error) {
+	now := time.Now()
+	pipeline := mongo.Pipeline{
+		bson.D{{"$unwind", "$items"}},
+		bson.D{{"$match", bson.D{
+			{"items.checked", true},
+			{"items.category", bson.D{{"$nin", bson.A{"CLEANERS", "PERSONAL_CARE"}}}},
+		}}},
+		bson.D{{"$lookup", bson.D{
+			{"from", PRODUCT_COLLECTION},
+			{"let", bson.D{{"pid", bson.D{{"$convert", bson.D{
+				{"input", "$items.product_id"},
+				{"to", "objectId"},
+				{"onError", nil},
+				{"onNull", nil},
+			}}}}}},
+			{"pipeline", bson.A{
+				bson.D{{"$match", bson.D{{"$expr", bson.D{{"$eq", bson.A{"$_id", "$$pid"}}}}}}},
+				bson.D{{"$project", bson.D{{"repeatms", 1}}}},
+			}},
+			{"as", "product"},
+		}}},
+		bson.D{{"$addFields", bson.D{{"window", bson.D{{"$let", bson.D{
+			{"vars", bson.D{{"repeatms", bson.D{{"$ifNull", bson.A{bson.D{{"$first", "$product.repeatms"}}, 0}}}}}},
+			{"in", bson.D{{"$cond", bson.A{
+				bson.D{{"$gt", bson.A{"$$repeatms", 0}}},
+				"$$repeatms",
+				models.DEFAULT_PERIOD_MS,
+			}}}},
+		}}}}}}},
+		bson.D{{"$match", bson.D{{"$expr", bson.D{{"$gte", bson.A{
+			"$date",
+			bson.D{{"$subtract", bson.A{now, "$window"}}},
+		}}}}}}},
+		bson.D{{"$group", bson.D{
+			{"_id", bson.D{{"$cond", bson.A{
+				bson.D{{"$ne", bson.A{"$items.product_id", ""}}},
+				"$items.product_id",
+				"$items.product_name",
+			}}}},
+			{"product_id", bson.D{{"$first", "$items.product_id"}}},
+			{"product_name", bson.D{{"$first", "$items.product_name"}}},
+			{"category", bson.D{{"$first", "$items.category"}}},
+		}}},
+		bson.D{{"$project", bson.D{{"_id", 0}, {"product_id", 1}, {"product_name", 1}, {"category", 1}}}},
+	}
+	cursor, err := m.db.Collection(MARKET_LIST_COLLECTION).Aggregate(context.TODO(), pipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.TODO())
+
+	results := []models.AvailableIngredient{}
+	if err := cursor.All(context.TODO(), &results); err != nil {
+		return nil, err
+	}
+	return results, nil
 }
 
 func (m *ProductMongoRepository) ListProducts() []*models.ProductListItem {

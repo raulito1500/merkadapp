@@ -18,6 +18,10 @@ func (p *ProductService) ListProducts() []*models.ProductListItem {
 	return p.productRepository.ListProducts()
 }
 
+func (p *ProductService) AvailableIngredients() ([]models.AvailableIngredient, error) {
+	return p.productRepository.AvailableIngredients()
+}
+
 func (p *ProductService) InsertProduct(product *models.Product) (string, error) {
 	product.GenMS()
 	return p.productRepository.InsertProduct(product)

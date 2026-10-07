@@ -16,12 +16,6 @@ type MarketListRecommendation struct {
 	Items []*ListItemRecommendation `json:"items,omitempty" bson:"items"`
 }
 
-type RecentIngredient struct {
-	ProductId   string `json:"product_id" bson:"product_id"`
-	ProductName string `json:"product_name" bson:"product_name"`
-	Category    string `json:"category" bson:"category"`
-}
-
 type ListItemRecommendation struct {
 	ID          string    `json:"id,omitempty" bson:"_id,omitempty"`
 	ProductId   string    `json:"product_id" bson:"product_id"`

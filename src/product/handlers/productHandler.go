@@ -25,6 +25,15 @@ func (ph ProductHandler) ListProducts(c *gin.Context) {
 	c.JSON(http.StatusOK, products)
 }
 
+func (ph ProductHandler) AvailableIngredients(c *gin.Context) {
+	ingredients, err := ph.productService.AvailableIngredients()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, ingredients)
+}
+
 func (ph ProductHandler) InsertProduct(c *gin.Context) {
 	reqBody := new(models.Product)
 
